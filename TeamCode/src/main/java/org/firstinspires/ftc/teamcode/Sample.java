@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,7 +10,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 
 //LEFT JOYSTICK - FORWARD and BACKWARD
 // RIGHT JOYSTICK - RIGHT and LEFT Turns
-
+@Disabled
 @TeleOp(name = "Sample")
 public class Sample extends LinearOpMode {
     enum RotateServoE {

@@ -8,13 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 //LEFT JOYSTICK - FORWARD and BACKWARD
 // RIGHT JOYSTICK - RIGHT and LEFT Turns
 
-@TeleOp(name = "DriveEncoderValues", group = "Auto")
-public class DriveTrainEncoder extends LinearOpMode {
+@TeleOp(name = "RobotEncoder", group = "TeleOp")
+public class RobotEncoder extends LinearOpMode {
     enum RotateServoE {
         //INTAKE_NO_DOWN_UP,
         INTAKE_DOWN,
         INTAKE_UP
-    };
+    }
     /* Declare OpMode members. */
     public DcMotor leftFrontDrive   = null;
     public DcMotor leftBackDrive   = null;
@@ -66,10 +66,10 @@ public class DriveTrainEncoder extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -148,6 +148,12 @@ public class DriveTrainEncoder extends LinearOpMode {
             }
             if (leftArrow == true && gamepad1.dpad_left == false) {
                 leftArrow = false;
+
+            }
+            //if (gamepad1.right_bumper == true) {
+                //turn(90);     // turn right
+                //sleep(9000);  //wait
+                //turn(-90);     //turn left
             }
             telemetry.addData("leftfront %f", leftFrontDrive.getCurrentPosition() );
             telemetry.addData("leftback %f", leftBackDrive.getCurrentPosition() );
@@ -156,6 +162,23 @@ public class DriveTrainEncoder extends LinearOpMode {
             telemetry.addData("Horizontal Curr Position %f", horizontalMotor.getCurrentPosition() );
 //            telemetry.addData("RotateServoPOS", rotateServo.getPosition() );
             telemetry.update();
+
+
+            double turnPower = 0.2 ;
+            if (gamepad1.right_bumper == true); { //turn left
+                leftFrontDrive.setPower(-turnPower);
+                leftBackDrive.setPower(-turnPower);
+                rightFrontDrive.setPower(turnPower);
+                rightBackDrive.setPower(turnPower);
+            }
+
+            if (gamepad1.left_bumper == true); { //turn right
+                leftFrontDrive.setPower(turnPower);
+                leftBackDrive.setPower(turnPower);
+                rightFrontDrive.setPower(-turnPower);
+                rightBackDrive.setPower(-turnPower);
+            }
+
             //SERVO
             //if (rotateServoe == RotateServoE.INTAKE_UP  && gamepad1.right_bumper==true)
             //down=true;
@@ -184,7 +207,27 @@ public class DriveTrainEncoder extends LinearOpMode {
 //                spinServo.setPower(0);
 //            }
         }
+    public void turn(double degrees) {
+        // Output the safe vales to the motor drives.
+        int Encoder = (int)(degrees*100); //change 20 to actual number
+        double turnPower = 0.2;
+        if (degrees > 0) { // positive degrees = turn right
+            leftFrontDrive.setPower(-turnPower);
+            leftBackDrive.setPower(-turnPower);
+            rightFrontDrive.setPower(turnPower);
+            rightBackDrive.setPower(turnPower);
+        }
+        else {             // negative degres = turn left
+            leftFrontDrive.setPower(turnPower);
+            leftBackDrive.setPower(turnPower);
+            rightFrontDrive.setPower(-turnPower);
+            rightBackDrive.setPower(-turnPower);
+        }
+        leftFrontDrive.setTargetPosition(Encoder);
+        leftBackDrive.setTargetPosition(Encoder);
+        rightFrontDrive.setTargetPosition(Encoder);
+        rightBackDrive.setTargetPosition(Encoder);
+    }
 
-    }  // wait for stop
 
-}
+}  // wait for stop
