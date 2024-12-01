@@ -66,6 +66,13 @@ public class Auto extends LinearOpMode {
         verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         clawservo = hardwareMap.get(Servo.class, "cs5");
 
+        Servo servostop1;
+        Servo servostop2;
+
+        servostop1 = hardwareMap.get(Servo.class, "cs3");
+        servostop2 = hardwareMap.get(Servo.class, "cs1");
+
+
 
         //Wall
 
@@ -120,6 +127,9 @@ public class Auto extends LinearOpMode {
         boolean attach = false;
 
         if(opModeIsActive()){
+
+            servostop1.setPosition(0.95);
+            servostop2.setPosition(0.35);
             //telemetry();
 
             //Park Code
