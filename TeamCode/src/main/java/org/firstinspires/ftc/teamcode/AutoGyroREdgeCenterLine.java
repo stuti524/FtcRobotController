@@ -31,9 +31,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -89,16 +89,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Robot: Auto Drive By Gyro", group="Robot")
+@Autonomous(name="AutoGyroDefault", group="Robot")
 
-public class AutoGyro extends LinearOpMode {
+public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     /* Declare OpMode members. */
     private IMU             imu         = null;   // Control/Expansion Hub IMU
-    public DcMotor leftFrontDrive   = null;
-    public DcMotor leftBackDrive   = null;
-    public DcMotor  rightFrontDrive  = null;
-    public DcMotor  rightBackDrive  = null;
+    public DcMotorEx leftFrontDrive   = null;
+    public DcMotorEx leftBackDrive   = null;
+    public DcMotorEx  rightFrontDrive  = null;
+    public DcMotorEx  rightBackDrive  = null;
     public DcMotor verticalLeft = null;
     public DcMotor verticalRight = null;
     public Servo servostop1 = null;
@@ -130,15 +130,15 @@ public class AutoGyro extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.4;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.2;     // Max turn speed to limit turn rate.
+    static final double     DRIVE_SPEED             = 0.5;     // Max driving speed for better distance accuracy.
+    static final double     TURN_SPEED              = 0.3;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
     // We define one value when Turning (larger errors), and the other is used when Driving straight (smaller errors).
     // Increase these numbers if the heading does not correct strongly enough (eg: a heavy robot or using tracks)
     // Decrease these numbers if the heading does not settle on the correct value (eg: very agile robot with omni wheels)
-    static final double     P_TURN_GAIN            = 0.02;     // Larger is more responsive, but also less stable.
+    static final double     P_TURN_GAIN            = 0.03;     // Larger is more responsive, but also less stable.
     static final double     P_DRIVE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
     enum VertE {
@@ -153,6 +153,7 @@ public class AutoGyro extends LinearOpMode {
         CLAW_OPEN
     };
 
+    Servo rotateservo;
     Servo clawservo;
     ClawServoE clawservoe1= ClawServoE.CLAW_CLOSE;
     VertE vertchame= VertE.RESET_CHAM;
@@ -163,15 +164,17 @@ public class AutoGyro extends LinearOpMode {
     public void runOpMode() {
 
         // Define and Initialize Motors
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "cm2");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "cm3");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "cm0");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "cm1");
+        leftFrontDrive  = hardwareMap.get(DcMotorEx.class, "cm2");
+        leftBackDrive  = hardwareMap.get(DcMotorEx.class, "cm3");
+        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "cm0");
+        rightBackDrive = hardwareMap.get(DcMotorEx.class, "cm1");
 
         verticalLeft = hardwareMap.get(DcMotor.class, "em1");
         verticalRight = hardwareMap.get(DcMotor.class, "em2");
 
         clawservo = hardwareMap.get(Servo.class, "cs5");
+
+        rotateservo = hardwareMap.get(Servo.class, "es3");
 
         servostop1 = hardwareMap.get(Servo.class, "cs3");
         servostop2 = hardwareMap.get(Servo.class, "cs1");
@@ -236,6 +239,8 @@ public class AutoGyro extends LinearOpMode {
         servostop1.setPosition(0.95);
         servostop2.setPosition(0.35);
 
+        rotateservo.setPosition(0.87);
+
         // Set the encoders for closed loop speed control, and reset the heading.
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -243,49 +248,32 @@ public class AutoGyro extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
 
-        // Step through each leg of the path,
-        // Notes:   Reverse movement is obtained by setting a negative distance (not speed)
-        //          holdHeading() is used after turns to let the heading stabilize
-        //          Add a sleep(2000) after any step to keep the telemetry data visible for review
 
-        driveStraight(DRIVE_SPEED, -24.0, 0.0);    // Drive forward -24
-        hangSpecimen(1);
-        driveStraight(DRIVE_SPEED, 19, 0.0);
-        //holdHeading(TURN_SPEED, 0, 0.5); //Stability from hanging specimen
-        turnToHeading (TURN_SPEED, -86.0);               // Turn  CW to -45 Degrees
-        holdHeading(TURN_SPEED, -86.0, 0.1);   // Hold -45 Deg heading for a 1/2 second
-        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading());
-        turnToHeading(TURN_SPEED, getHeading()-86.2);
-        holdHeading(TURN_SPEED, getHeading(), 0.1);
-        driveStraight(0.2, -12, getHeading());
+        driveStraight(DRIVE_SPEED, -24.0, 0.0);                       // Drive backward 24 inches
+        hangSpecimen(1, -6.0);                                               // Hang Specimen 1
+        driveStraight(DRIVE_SPEED, 19, 0.0);                         // Drive forward 19 inches
+        turnToHeading (TURN_SPEED, -90.0);                                   // Turn 90 degrees to the left
+        holdHeading(TURN_SPEED, -90.0, 0.1);                        // Hold the turn for 0.1 seconds
+        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading());   // Go backwards 45.5 inches
+        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
+        holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+        driveStraight(0.2, -11.8, getHeading());                 // Drive backward 12 inches
         grabSpecimen();
-        driveStraight(DRIVE_SPEED, 12, getHeading());
-        turnToHeading(TURN_SPEED, getHeading()-86.0);
-        holdHeading(TURN_SPEED, getHeading(), 0.1);
-        driveStraight(DRIVE_SPEED, -45.5, getHeading());
-        turnToHeading(TURN_SPEED, getHeading()-86.0);
-        holdHeading(TURN_SPEED, getHeading(), 0.1);
-        driveStraight(DRIVE_SPEED, -12, getHeading());
-        hangSpecimen(2);
+        driveStraight(DRIVE_SPEED, 11.8, getHeading());                        // Drive forward 12 inches
+        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
+        holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+        driveStraight(DRIVE_SPEED, -53.5, getHeading());                     // Drive backward 45 inches
+        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
+        holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+        driveStraight(DRIVE_SPEED, -12, getHeading());                      // Drive backward 45 inches
+        hangSpecimen(2, -6.5);                                             // Hang Specimen
+//        turnToHeading(TURN_SPEED, 60);
+//        driveStraight(DRIVE_SPEED, 18, 60);
+        //driveStraight(DRIVE_SPEED, 15, -70.0);
 
-
-
-        //turnToHeading( TURN_SPEED, -45.0);               // Turn  CW to -45 Degrees
-        //holdHeading( TURN_SPEED, -45.0, 0.5);   // Hold -45 Deg heading for a 1/2 second
-
-        //driveStraight(DRIVE_SPEED, 17.0, -45.0);  // Drive Forward 17" at -45 degrees (12"x and 12"y)
-        //     turnToHeading( TURN_SPEED,  45.0);               // Turn  CCW  to  45 Degrees
-        //     holdHeading( TURN_SPEED,  45.0, 0.5);    // Hold  45 Deg heading for a 1/2 second
-
-        //     driveStraight(DRIVE_SPEED, 17.0, 45.0);  // Drive Forward 17" at 45 degrees (-12"x and 12"y)
-        //     turnToHeading( TURN_SPEED,   0.0);               // Turn  CW  to 0 Degrees
-        //     holdHeading( TURN_SPEED,   0.0, 1.0);    // Hold  0 Deg heading for 1 second
-
-        //     driveStraight(DRIVE_SPEED,-48.0, 0.0);    // Drive in Reverse 48" (should return to approx. staring position)
-
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
-        sleep(1000);  // Pause to display last telemetry message.
+//        telemetry.addData("Path", "Complete");
+//        telemetry.update();
+//        sleep(1000);  // Pause to display last telemetry message.
     }
 
     /*
@@ -382,7 +370,21 @@ public class AutoGyro extends LinearOpMode {
         getSteeringCorrection(heading, P_DRIVE_GAIN);
 
         // keep looping while we are still active, and not on heading.
-        while (opModeIsActive() && (Math.abs(headingError) > HEADING_THRESHOLD)) {
+          /*
+          while (
+           opModeisActive AND
+           error outside threshold AND
+           velocity is too fast
+            )
+            {}
+          */
+
+        while (
+                opModeIsActive() &&
+                        ((Math.abs(headingError) > HEADING_THRESHOLD) ||
+                                (leftFrontDrive.getVelocity() > 10 || leftFrontDrive.getVelocity() < -10)
+                        )
+        ) {
 
             // Determine required steering to keep on heading
             turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
@@ -507,6 +509,8 @@ public class AutoGyro extends LinearOpMode {
         telemetry.addData("Heading- Target : Current", "%5.2f : %5.0f", targetHeading, getHeading());
         telemetry.addData("Error  : Steer Pwr",  "%5.1f : %5.1f", headingError, turnSpeed);
         telemetry.addData("Wheel Speeds L : R", "%5.2f : %5.2f", leftSpeed, rightSpeed);
+        telemetry.addData("Vertical Left Motor Position", verticalLeft.getCurrentPosition());
+        telemetry.addData("Vertical Right Motor Position", verticalRight.getCurrentPosition());
         telemetry.update();
     }
 
@@ -518,16 +522,13 @@ public class AutoGyro extends LinearOpMode {
         return orientation.getYaw(AngleUnit.DEGREES);
     }
 
-    public void hangSpecimen(int specimenNumber){
+    public void hangSpecimen(int specimenNumber, double closeDistance){
         chamber(false, 1);
         telemetry.addData("Status: Hanging Specimen %d", specimenNumber);
         telemetry.update();
-        sleep(1500);
-        driveStraight(DRIVE_SPEED, -6.0, 0.0);
+        driveStraight(DRIVE_SPEED, closeDistance, 0.0);
         chamber(false, 2);
-        sleep(1000);
         chamber(true, 0);
-        sleep(1000);
     }
 
     public void chamber(boolean open, double extended) {
@@ -540,8 +541,10 @@ public class AutoGyro extends LinearOpMode {
 
         if (clawservoe1 == ClawServoE.CLAW_CLOSE)
             clawservo.setPosition(1.2); // vertical extension claw is closed
-        if (clawservoe1 == ClawServoE.CLAW_OPEN)
+        if (clawservoe1 == ClawServoE.CLAW_OPEN) {
             clawservo.setPosition(0); // vertical extension claw is open
+            sleep(300);
+        }
 
 
         //else if (extended == true && gamepad1.a == true) {
@@ -571,16 +574,20 @@ public class AutoGyro extends LinearOpMode {
             verticalLeft.setTargetPosition(0);
             verticalRight.setTargetPosition(0);
         }
-
+        while(verticalLeft.isBusy() || verticalRight.isBusy()){
+            sendTelemetry(true);
+        }
     }
+
+
     public void grabSpecimen() {
         sleep(100);
         wall(true, false); //claw = open. vertical slides = down
-        sleep(500);
+        sleep(300);
         wall(false, false); //claw = close. vertical slides = down
-        sleep(500);
+        sleep(300);
         wall(false, true);  //claw = close. vertical slides = up
-        sleep(500);
+        sleep(200);
 
     }
 
