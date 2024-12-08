@@ -274,7 +274,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
-        //sleep(1000);  // Pause to display last telemetry message.
+        sleep(1000);  // Pause to display last telemetry message.
     }
 
     /*
