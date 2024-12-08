@@ -272,9 +272,9 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         turnToHeading(0.8, 65.0);
         driveStraight(0.8, 44, 65, false);
 
-//        telemetry.addData("Path", "Complete");
-//        telemetry.update();
-//        sleep(1000);  // Pause to display last telemetry message.
+        telemetry.addData("Path", "Complete");
+        telemetry.update();
+        //sleep(1000);  // Pause to display last telemetry message.
     }
 
     /*
@@ -334,7 +334,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 // if driving in reverse, the motor correction also needs to be reversed
                 if (distance < 0)
                     turnSpeed *= -1.0;
-                // if you want to run vertical in parallel with driving
+                // if you want to extend vertical up in parallel with driving
                 if (readyToHang) {
                     verticalLeft.setTargetPosition(1300);
                     verticalRight.setTargetPosition(-1300);
@@ -553,12 +553,6 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             sleep(300);
         }
 
-
-        //else if (extended == true && gamepad1.a == true) {
-        //    attach = true;
-        //    extended = false;
-
-        //}
         if (extended == 0){
             vertchame = VertE.RESET_CHAM;
         }
