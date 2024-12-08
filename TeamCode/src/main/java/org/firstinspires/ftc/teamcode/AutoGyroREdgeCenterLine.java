@@ -145,19 +145,19 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         ABOVE_CHAM,
         ON_CHAM,
         RESET_CHAM
-    };
-    VertE state = VertE.ABOVE_CHAM;
+    }
+    //VertE state = VertE.ABOVE_CHAM;
     enum ClawServoE {
         //INTAKE_NO_DOWN_UP,
         CLAW_CLOSE,
         CLAW_OPEN
-    };
+    }
 
     Servo rotateservo;
     Servo clawservo;
     ClawServoE clawservoe1= ClawServoE.CLAW_CLOSE;
     VertE vertchame= VertE.RESET_CHAM;
-    public boolean extended_vert = false;
+    //public boolean extended_vert = false;
 
 
     @Override
@@ -236,8 +236,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             telemetry.update();
         }
 
-        servostop1.setPosition(0.95);
-        servostop2.setPosition(0.35);
+        servostop1.setPosition(1.0);
+        servostop2.setPosition(0.20);
 
         rotateservo.setPosition(0.87);
 
@@ -249,27 +249,28 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         imu.resetYaw();
 
 
-        driveStraight(DRIVE_SPEED, -24.0, 0.0);                       // Drive backward 24 inches
+        driveStraight(DRIVE_SPEED, -24.0, 0.0, true);                       // Drive backward 24 inches
         hangSpecimen(1, -6.0);                                               // Hang Specimen 1
-        driveStraight(DRIVE_SPEED, 19, 0.0);                         // Drive forward 19 inches
+        driveStraight(DRIVE_SPEED, 19, 0.0, false);                         // Drive forward 19 inches
         turnToHeading (TURN_SPEED, -90.0);                                   // Turn 90 degrees to the left
-        holdHeading(TURN_SPEED, -90.0, 0.1);                        // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading());   // Go backwards 45.5 inches
+        //holdHeading(TURN_SPEED, -90.0, 0.1);                        // Hold the turn for 0.1 seconds
+        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading(), false);   // Go backwards 45.5 inches
         turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-        holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(0.2, -11.8, getHeading());                 // Drive backward 12 inches
+        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+        driveStraight(0.2, -11.6, getHeading(), false);                 // Drive backward 12 inches
         grabSpecimen();
-        driveStraight(DRIVE_SPEED, 11.8, getHeading());                        // Drive forward 12 inches
+        driveStraight(DRIVE_SPEED, 11.6, getHeading(), false);                        // Drive forward 12 inches
         turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-        holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED, -53.5, getHeading());                     // Drive backward 45 inches
+        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+        driveStraight(DRIVE_SPEED, -53.5, getHeading(), false);                     // Drive backward 45 inches
         turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-        holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED, -12, getHeading());                      // Drive backward 45 inches
-        hangSpecimen(2, -6.5);                                             // Hang Specimen
-//        turnToHeading(TURN_SPEED, 60);
-//        driveStraight(DRIVE_SPEED, 18, 60);
-        //driveStraight(DRIVE_SPEED, 15, -70.0);
+        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+        driveStraight(DRIVE_SPEED, -11.8, getHeading(), true);                      // Drive backward 45 inches
+        hangSpecimen(2, -6.5);                                             // Hang Specimen 2
+        // Park before Auto period ends
+        driveStraight(0.8, 6, getHeading(), false);
+        turnToHeading(0.8, 65.0);
+        driveStraight(0.8, 44, 65, false);
 
 //        telemetry.addData("Path", "Complete");
 //        telemetry.update();
@@ -297,7 +298,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
-    public void driveStraight(double maxDriveSpeed, double distance, double heading) {
+    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean readyToHang) {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
@@ -333,6 +334,12 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 // if driving in reverse, the motor correction also needs to be reversed
                 if (distance < 0)
                     turnSpeed *= -1.0;
+                // if you want to run vertical in parallel with driving
+                if (readyToHang) {
+                    verticalLeft.setTargetPosition(1300);
+                    verticalRight.setTargetPosition(-1300);
+                    readyToHang = false;
+                }
 
                 // Apply the turning correction to the current driving speed.
                 moveRobot(driveSpeed, turnSpeed);
@@ -526,13 +533,13 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         chamber(false, 1);
         telemetry.addData("Status: Hanging Specimen %d", specimenNumber);
         telemetry.update();
-        driveStraight(DRIVE_SPEED, closeDistance, 0.0);
+        driveStraight(DRIVE_SPEED, closeDistance, 0.0, false);
         chamber(false, 2);
         chamber(true, 0);
     }
 
     public void chamber(boolean open, double extended) {
-        if (open == true){
+        if (open){
             clawservoe1 = ClawServoE.CLAW_OPEN;
         }
         else{
@@ -593,7 +600,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
 
     public void wall(boolean open, boolean extended_vert) {
-        if (open == true){
+        if (open){
             clawservoe1 = ClawServoE.CLAW_OPEN;
         }
         else{
@@ -607,10 +614,10 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             clawservo.setPosition(0); //claw is open
         }
 
-        if (extended_vert == true) {
+        if (extended_vert) {
             verticalLeft.setTargetPosition(300);
             verticalRight.setTargetPosition(-300);
-        } else if (extended_vert == false) {
+        } else {
             verticalLeft.setTargetPosition(0);
             verticalRight.setTargetPosition(0);
         }
