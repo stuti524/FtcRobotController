@@ -203,7 +203,7 @@ public class LM2Teleop extends LinearOpMode {
 
             if (state != StateE.ASCENT_STATE) {
                 servostop1.setPosition(1.0);
-                servostop2.setPosition(0.25);
+                servostop2.setPosition(0.20);
             }
             if (gamepad1.x == true) {
                 state = StateE.CHAMBER_STATE;
@@ -361,7 +361,7 @@ public class LM2Teleop extends LinearOpMode {
         if (rotateServoe == RotateServoE.INTAKE_UP)
             rotateServo.setPosition(0.87);//rotating intake fully upright
         if (rotateServoe == RotateServoE.INTAKE_MIDDLE)
-            rotateServo.setPosition(0.5);//rotate intake middle position
+            rotateServo.setPosition(0.35);//rotate intake middle position
         telemetry.addData("RotateServoPOS", rotateServo.getPosition());
         telemetry.update();
 
