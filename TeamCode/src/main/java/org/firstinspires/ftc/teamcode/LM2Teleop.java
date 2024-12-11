@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-@TeleOp(name = "LM2Teleop")
+@TeleOp(name = "LM2Teleop", group = "TeleOp")
 public class LM2Teleop extends LinearOpMode {
     enum StateE {
         SAMPLE_STATE,

@@ -249,7 +249,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         imu.resetYaw();
 
 
-        driveStraight(DRIVE_SPEED, -24.0, 0.0, true);                       // Drive backward 24 inches
+        driveStraight(DRIVE_SPEED - 0.1, -32.0, 0.0, true);                       // Drive backward 24 inches
         hangSpecimen(1, -6.0);                                               // Hang Specimen 1
         driveStraight(DRIVE_SPEED, 19, 0.0, false);                         // Drive forward 19 inches
         turnToHeading (TURN_SPEED, -90.0);                                   // Turn 90 degrees to the left
@@ -257,16 +257,17 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading(), false);   // Go backwards 45.5 inches
         turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
         //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(0.2, -11.6, getHeading(), false);                 // Drive backward 12 inches
+        driveStraight(0.2, -12.5, getHeading(), false);                 // Drive backward 12 inches
         grabSpecimen();
-        driveStraight(DRIVE_SPEED, 11.6, getHeading(), false);                        // Drive forward 12 inches
+        driveStraight(DRIVE_SPEED, 12.2, getHeading(), false);                        // Drive forward 12 inches
         turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
         //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED, -53.5, getHeading(), false);                     // Drive backward 45 inches
+        driveStraight(DRIVE_SPEED, -53.5, getHeading(), true);                     // Drive backward 45 inches
         turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
         //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED, -11.8, getHeading(), true);                      // Drive backward 45 inches
-        hangSpecimen(2, -6.5);                                             // Hang Specimen 2
+        driveStraight(DRIVE_SPEED - 0.1, -19.7, getHeading(), false);                      // Drive backward 45 inches
+        hangSpecimen(2, -6.5);
+        // Hang Specimen 2
         // Park before Auto period ends
         driveStraight(0.8, 6, getHeading(), false);
         turnToHeading(0.8, 65.0);
@@ -325,8 +326,13 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             moveRobot(maxDriveSpeed, 0);
 
             // keep looping while we are still active, and BOTH motors are running.
-            while (opModeIsActive() &&
-                    (leftBackDrive.isBusy() && rightBackDrive.isBusy())) {
+            while (
+                    opModeIsActive() &&
+                    ((leftBackDrive.isBusy() && rightBackDrive.isBusy()) //||
+                   // (leftBackDrive.getVelocity() > 20 || leftBackDrive.getVelocity() < -20) ||
+                   // (rightBackDrive.getVelocity() > 20 || rightBackDrive.getVelocity() < -20))
+
+            )){
 
                 // Determine required steering to keep on heading
                 turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
@@ -533,7 +539,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         chamber(false, 1);
         telemetry.addData("Status: Hanging Specimen %d", specimenNumber);
         telemetry.update();
-        driveStraight(DRIVE_SPEED, closeDistance, 0.0, false);
+        //driveStraight(DRIVE_SPEED, closeDistance, 0.0, false);
         chamber(false, 2);
         chamber(true, 0);
     }
