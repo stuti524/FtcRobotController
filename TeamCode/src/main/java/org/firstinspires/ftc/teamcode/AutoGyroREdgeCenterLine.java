@@ -158,7 +158,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     ClawServoE clawservoe1= ClawServoE.CLAW_CLOSE;
     VertE vertchame= VertE.RESET_CHAM;
     //public boolean extended_vert = false;
-
+    TransferFinal tf = new TransferFinal();
 
     @Override
     public void runOpMode() {
@@ -172,12 +172,12 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         verticalLeft = hardwareMap.get(DcMotor.class, "em1");
         verticalRight = hardwareMap.get(DcMotor.class, "em2");
 
-        clawservo = hardwareMap.get(Servo.class, "cs5");
-
-        rotateservo = hardwareMap.get(Servo.class, "es3");
-
-        servostop1 = hardwareMap.get(Servo.class, "cs3");
-        servostop2 = hardwareMap.get(Servo.class, "cs1");
+//        clawservo = hardwareMap.get(Servo.class, "cs5");
+//
+//        rotateservo = hardwareMap.get(Servo.class, "es3");
+//
+//        servostop1 = hardwareMap.get(Servo.class, "cs3");
+//        servostop2 = hardwareMap.get(Servo.class, "cs1");
 
         verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -230,16 +230,15 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        tf.servoInitializationAuto(hardwareMap);
+
         // Wait for the game to start (Display Gyro value while waiting)
         while (opModeInInit()) {
             telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
             telemetry.update();
         }
 
-        servostop1.setPosition(1.0);
-        servostop2.setPosition(0.20);
 
-        rotateservo.setPosition(0.87);
 
         // Set the encoders for closed loop speed control, and reset the heading.
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -248,30 +247,33 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
 
-
-        driveStraight(DRIVE_SPEED - 0.1, -32.0, 0.0, true);                       // Drive backward 24 inches
-        hangSpecimen(1, -6.0);                                               // Hang Specimen 1
-        driveStraight(DRIVE_SPEED, 19, 0.0, false);                         // Drive forward 19 inches
-        turnToHeading (TURN_SPEED, -90.0);                                   // Turn 90 degrees to the left
-        //holdHeading(TURN_SPEED, -90.0, 0.1);                        // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading(), false);   // Go backwards 45.5 inches
-        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(0.2, -12.5, getHeading(), false);                 // Drive backward 12 inches
-        grabSpecimen();
-        driveStraight(DRIVE_SPEED, 12.2, getHeading(), false);                        // Drive forward 12 inches
-        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED, -53.5, getHeading(), true);                     // Drive backward 45 inches
-        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-        driveStraight(DRIVE_SPEED - 0.1, -19.7, getHeading(), false);                      // Drive backward 45 inches
-        hangSpecimen(2, -6.5);
-        // Hang Specimen 2
+        // Execute Game Path
+        driveStraight(DRIVE_SPEED - 0.1, 32.25, 0.0, true);  // Drive backward 24 inches
+        driveStraight(DRIVE_SPEED - 0.1, 0.5, 0.0, true);  // Drive backward 24 inches
+        tf.hangSpecimen();
+        tf.finishHang();
+//        hangSpecimen(1, -6.0);                                               // Hang Specimen 1
+//        driveStraight(DRIVE_SPEED, 19, 0.0, false);                         // Drive forward 19 inches
+//        turnToHeading (TURN_SPEED, -90.0);                                   // Turn 90 degrees to the left
+//        //holdHeading(TURN_SPEED, -90.0, 0.1);                        // Hold the turn for 0.1 seconds
+//        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading(), false);   // Go backwards 45.5 inches
+//        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
+//        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+//        driveStraight(0.2, -12.5, getHeading(), false);                 // Drive backward 12 inches
+//        grabSpecimen();
+//        driveStraight(DRIVE_SPEED, 12.2, getHeading(), false);                        // Drive forward 12 inches
+//        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
+//        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+//        driveStraight(DRIVE_SPEED, -53.5, getHeading(), true);                     // Drive backward 45 inches
+//        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
+//        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
+//        driveStraight(DRIVE_SPEED - 0.1, -19.7, getHeading(), false);                      // Drive backward 45 inches
+//        hangSpecimen(2, -6.5);
+//        // Hang Specimen 2
         // Park before Auto period ends
-        driveStraight(0.8, 6, getHeading(), false);
-        turnToHeading(0.8, 65.0);
-        driveStraight(0.8, 44, 65, false);
+//        driveStraight(0.8, 6, getHeading(), false);
+//        turnToHeading(0.8, 65.0);
+//        driveStraight(0.8, 44, 65, false);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -341,11 +343,11 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 if (distance < 0)
                     turnSpeed *= -1.0;
                 // if you want to extend vertical up in parallel with driving
-                if (readyToHang) {
-                    verticalLeft.setTargetPosition(1300);
-                    verticalRight.setTargetPosition(-1300);
-                    readyToHang = false;
-                }
+//                if (readyToHang) {
+//                    verticalLeft.setTargetPosition(1300);
+//                    verticalRight.setTargetPosition(-1300);
+//                    readyToHang = false;
+//                }
 
                 // Apply the turning correction to the current driving speed.
                 moveRobot(driveSpeed, turnSpeed);
