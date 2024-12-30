@@ -130,7 +130,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.5;     // Max driving speed for better distance accuracy.
+    static final double     DRIVE_SPEED             = 0.7;     // Max driving speed for better distance accuracy.
     static final double     TURN_SPEED              = 0.3;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
@@ -193,8 +193,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        verticalLeft.setPower(0.5);
-        verticalRight.setPower(0.5);
+        verticalLeft.setPower(0.7);
+        verticalRight.setPower(0.7);
         //rotateServo = hardwareMap.get(Servo.class, "es3");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -247,29 +247,31 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         imu.resetYaw();
 
-        // Execute Game Path
-        driveStraight(DRIVE_SPEED - 0.1, 32.25, 0.0, true);  // Drive backward 24 inches
-        driveStraight(DRIVE_SPEED - 0.1, 0.5, 0.0, true);  // Drive backward 24 inches
-        tf.hangSpecimen();
+        /// Execute Game Path
+        driveStraight(DRIVE_SPEED, 31, 0.0, true);  // Drive backward 24 inches
+        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive backward 24 inches
         tf.finishHang();
-//        hangSpecimen(1, -6.0);                                               // Hang Specimen 1
-//        driveStraight(DRIVE_SPEED, 19, 0.0, false);                         // Drive forward 19 inches
-//        turnToHeading (TURN_SPEED, -90.0);                                   // Turn 90 degrees to the left
-//        //holdHeading(TURN_SPEED, -90.0, 0.1);                        // Hold the turn for 0.1 seconds
-//        driveStraight(DRIVE_SPEED+0.2, -45.5, getHeading(), false);   // Go backwards 45.5 inches
-//        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-//        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-//        driveStraight(0.2, -12.5, getHeading(), false);                 // Drive backward 12 inches
-//        grabSpecimen();
-//        driveStraight(DRIVE_SPEED, 12.2, getHeading(), false);                        // Drive forward 12 inches
-//        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-//        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-//        driveStraight(DRIVE_SPEED, -53.5, getHeading(), true);                     // Drive backward 45 inches
-//        turnToHeading(TURN_SPEED, getHeading()-90.0);                        // Turn 90 degrees to the left
-//        //holdHeading(TURN_SPEED, getHeading(), 0.1);                         // Hold the turn for 0.1 seconds
-//        driveStraight(DRIVE_SPEED - 0.1, -19.7, getHeading(), false);                      // Drive backward 45 inches
-//        hangSpecimen(2, -6.5);
-//        // Hang Specimen 2
+        ///Drive backward x inches
+        driveStraight(DRIVE_SPEED, -20, 0.0, false);
+        ///Turn at a angle
+        turnToHeading(TURN_SPEED, -50);                     // Turn 50 degrees to the right
+        ///Drive forward  y inches at a y1 angle
+        driveStraight(DRIVE_SPEED, 30, getHeading(), false);
+        driveStraight(DRIVE_SPEED, 32, -20, false);
+        ///Reorient the robot to 0 degrees
+        turnToHeading(TURN_SPEED, 0);
+        ///Go backwards z inches
+        driveStraight(DRIVE_SPEED, -50, 0, false);
+        driveStraight(DRIVE_SPEED - 0.2, -8.5, 0, false);
+        tf.specimenPickup();
+        driveStraight(DRIVE_SPEED, 8, 0, false);
+        turnToHeading(TURN_SPEED, 90);
+        driveStraight(DRIVE_SPEED, 43, getHeading(), true);
+        turnToHeading(TURN_SPEED, 0);
+        driveStraight(DRIVE_SPEED, 20, getHeading(), false);
+        driveStraight(DRIVE_SPEED/2, 2.5, getHeading(), false);
+        tf.finishHang();
+
         // Park before Auto period ends
 //        driveStraight(0.8, 6, getHeading(), false);
 //        turnToHeading(0.8, 65.0);
@@ -343,11 +345,10 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 if (distance < 0)
                     turnSpeed *= -1.0;
                 // if you want to extend vertical up in parallel with driving
-//                if (readyToHang) {
-//                    verticalLeft.setTargetPosition(1300);
-//                    verticalRight.setTargetPosition(-1300);
-//                    readyToHang = false;
-//                }
+                if (readyToHang) {
+                    tf.hangSpecimen();
+                    readyToHang = false;
+                }
 
                 // Apply the turning correction to the current driving speed.
                 moveRobot(driveSpeed, turnSpeed);

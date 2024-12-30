@@ -284,24 +284,24 @@ public class TransferFinal extends LinearOpMode {
         //1. Intialize transfer in the up position
         //this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
         //2. Raise vertical while transfer rotates into down position
-        this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
+        //this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_ADJUST, TransferGimbleStates.GIMBLE_HANG);
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
 
     }
 
     public void finishHang() {
-        this.verticalLeft.setTargetPosition(890);
-        this.verticalRight.setTargetPosition(-890);
+        this.verticalLeft.setTargetPosition(900);
+        this.verticalRight.setTargetPosition(-900);
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
-        sleep(400);
+        sleep(200);
         // //3. Let go of specimen
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);
         // //4. Retract vertical while fliiping transfer to up position
         this.verticalLeft.setTargetPosition(500);
         this.verticalRight.setTargetPosition(-500);
         this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
-        sleep(400);
+        sleep(200);
         this.verticalLeft.setTargetPosition(0);
         this.verticalRight.setTargetPosition(0);
     }
@@ -430,13 +430,5 @@ public class TransferFinal extends LinearOpMode {
         this.servostop2.setPosition(0.20);
         this.servostop1.setPosition(1.0);
 
-
-
-
-//        this.verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        this.verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//
-//        this.verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        this.verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }
