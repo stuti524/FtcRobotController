@@ -33,8 +33,6 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -95,24 +93,11 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     /* Declare OpMode members. */
     private IMU             imu         = null;   // Control/Expansion Hub IMU
-    public DcMotorEx leftFrontDrive   = null;
-    public DcMotorEx leftBackDrive   = null;
-    public DcMotorEx  rightFrontDrive  = null;
-    public DcMotorEx  rightBackDrive  = null;
-    public DcMotor verticalLeft = null;
-    public DcMotor verticalRight = null;
-    public Servo servostop1 = null;
-    public Servo servostop2 = null;
-
     private double          headingError  = 0;
 
     // These variable are declared here (as class members) so they can be updated in various methods,
     // but still be displayed by sendTelemetry()
     private double  targetHeading = 0;
-    private double  driveSpeed    = 0;
-    private double  turnSpeed     = 0;
-    private double  leftSpeed     = 0;
-    private double  rightSpeed    = 0;
     private int     leftTarget    = 0;
     private int     rightTarget   = 0;
 
@@ -130,8 +115,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.7;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.3;     // Max turn speed to limit turn rate.
+    static final double     DRIVE_SPEED             = 0.8;     // Max driving speed for better distance accuracy.
+    static final double     TURN_SPEED              = 0.4;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
@@ -141,69 +126,11 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     static final double     P_TURN_GAIN            = 0.03;     // Larger is more responsive, but also less stable.
     static final double     P_DRIVE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
-    enum VertE {
-        ABOVE_CHAM,
-        ON_CHAM,
-        RESET_CHAM
-    }
-    //VertE state = VertE.ABOVE_CHAM;
-    enum ClawServoE {
-        //INTAKE_NO_DOWN_UP,
-        CLAW_CLOSE,
-        CLAW_OPEN
-    }
-
-    Servo rotateservo;
-    Servo clawservo;
-    ClawServoE clawservoe1= ClawServoE.CLAW_CLOSE;
-    VertE vertchame= VertE.RESET_CHAM;
-    //public boolean extended_vert = false;
+    TankDriveTrainUtility dt = new TankDriveTrainUtility();
     TransferFinal tf = new TransferFinal();
 
     @Override
     public void runOpMode() {
-
-        // Define and Initialize Motors
-        leftFrontDrive  = hardwareMap.get(DcMotorEx.class, "cm2");
-        leftBackDrive  = hardwareMap.get(DcMotorEx.class, "cm3");
-        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "cm0");
-        rightBackDrive = hardwareMap.get(DcMotorEx.class, "cm1");
-
-        verticalLeft = hardwareMap.get(DcMotor.class, "em1");
-        verticalRight = hardwareMap.get(DcMotor.class, "em2");
-
-//        clawservo = hardwareMap.get(Servo.class, "cs5");
-//
-//        rotateservo = hardwareMap.get(Servo.class, "es3");
-//
-//        servostop1 = hardwareMap.get(Servo.class, "cs3");
-//        servostop2 = hardwareMap.get(Servo.class, "cs1");
-
-        verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        //Wall
-
-        verticalLeft.setTargetPosition(0);
-        verticalRight.setTargetPosition(0);
-
-        verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        verticalLeft.setPower(0.7);
-        verticalRight.setPower(0.7);
-        //rotateServo = hardwareMap.get(Servo.class, "es3");
-
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
 
         /* The next two lines define Hub orientation.
          * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
@@ -219,18 +146,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-        // Ensure the robot is stationary.  Reset the encoders and set the motors to BRAKE mode
-        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        tf.servoInitializationAuto(hardwareMap);
+        dt.initialize(hardwareMap);
+        tf.servoInitializationAuto(hardwareMap, 0.7);
 
         // Wait for the game to start (Display Gyro value while waiting)
         while (opModeInInit()) {
@@ -238,48 +155,58 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             telemetry.update();
         }
 
-
-
-        // Set the encoders for closed loop speed control, and reset the heading.
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //reset the heading
         imu.resetYaw();
 
         /// Execute Game Path
-        driveStraight(DRIVE_SPEED, 31, 0.0, true);  // Drive backward 24 inches
-        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive backward 24 inches
+        driveStraight(DRIVE_SPEED, 31, 0.0, true);  // Drive forward 31 inches
+        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
         tf.finishHang();
+        /// Run one of the following 2 Auto paths: Only Specimen scoring OR Sample scoring in basket
+        // Get specimen and hang them
+        runAutoWithSpecimen();
+        //TODO: Auto to get "Yellow" samples to score in high basket
+        runAutoWithBasket();
+        /// End Game Path
+        telemetry.addData("Path", "Complete");
+        telemetry.update();
+        sleep(1000);  // Pause to display last telemetry message.
+    }
+
+    /**
+     *
+     */
+    public void runAutoWithSpecimen () {
         ///Drive backward x inches
         driveStraight(DRIVE_SPEED, -20, 0.0, false);
         ///Turn at a angle
         turnToHeading(TURN_SPEED, -50);                     // Turn 50 degrees to the right
         ///Drive forward  y inches at a y1 angle
         driveStraight(DRIVE_SPEED, 30, getHeading(), false);
-        driveStraight(DRIVE_SPEED, 32, -20, false);
+        driveStraight(DRIVE_SPEED, 33, -20, false);
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0);
         ///Go backwards z inches
-        driveStraight(DRIVE_SPEED, -50, 0, false);
-        driveStraight(DRIVE_SPEED - 0.2, -8.5, 0, false);
+        driveStraight(DRIVE_SPEED , -53, 0, false);
+        driveStraight(DRIVE_SPEED-0.1, -8, 0, false);
         tf.specimenPickup();
         driveStraight(DRIVE_SPEED, 8, 0, false);
         turnToHeading(TURN_SPEED, 90);
         driveStraight(DRIVE_SPEED, 43, getHeading(), true);
         turnToHeading(TURN_SPEED, 0);
-        driveStraight(DRIVE_SPEED, 20, getHeading(), false);
+        driveStraight(DRIVE_SPEED-0.1, 20, getHeading(), false);
         driveStraight(DRIVE_SPEED/2, 2.5, getHeading(), false);
         tf.finishHang();
+        /// Park before Auto period ends
+        driveStraight(DRIVE_SPEED + 0.1, -6, 0, false);
+        turnToHeading(DRIVE_SPEED + 0.1, 65.0);
+        driveStraight(DRIVE_SPEED + 0.1, -40, getHeading(), false);
+    }
+    /**
+     *
+     */
+    public void runAutoWithBasket() {
 
-        // Park before Auto period ends
-//        driveStraight(0.8, 6, getHeading(), false);
-//        turnToHeading(0.8, 65.0);
-//        driveStraight(0.8, 44, 65, false);
-
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
-        sleep(1000);  // Pause to display last telemetry message.
     }
 
     /*
@@ -310,40 +237,40 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
             // Determine new target position, and pass to motor controller
             int moveCounts = (int)(distance * COUNTS_PER_INCH);
-            leftTarget = leftBackDrive.getCurrentPosition() + moveCounts;
-            rightTarget = rightBackDrive.getCurrentPosition() + moveCounts;
+            leftTarget = dt.leftBackDrive.getCurrentPosition() + moveCounts;
+            rightTarget = dt.rightBackDrive.getCurrentPosition() + moveCounts;
 
             // Set Target FIRST, then turn on RUN_TO_POSITION
-            leftBackDrive.setTargetPosition(leftTarget);
-            rightBackDrive.setTargetPosition(rightTarget);
-            leftFrontDrive.setTargetPosition(leftTarget);
-            rightFrontDrive.setTargetPosition(rightTarget);
+            dt.leftBackDrive.setTargetPosition(leftTarget);
+            dt.rightBackDrive.setTargetPosition(rightTarget);
+            dt.leftFrontDrive.setTargetPosition(leftTarget);
+            dt.rightFrontDrive.setTargetPosition(rightTarget);
 
-            leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            dt.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            dt.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            dt.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            dt.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // Set the required driving speed  (must be positive for RUN_TO_POSITION)
             // Start driving straight, and then enter the control loop
             maxDriveSpeed = Math.abs(maxDriveSpeed);
-            moveRobot(maxDriveSpeed, 0);
+            dt.moveRobot(maxDriveSpeed, 0);
 
             // keep looping while we are still active, and BOTH motors are running.
             while (
                     opModeIsActive() &&
-                    ((leftBackDrive.isBusy() && rightBackDrive.isBusy()) //||
+                    ((dt.leftBackDrive.isBusy() && dt.rightBackDrive.isBusy()) //||
                    // (leftBackDrive.getVelocity() > 20 || leftBackDrive.getVelocity() < -20) ||
                    // (rightBackDrive.getVelocity() > 20 || rightBackDrive.getVelocity() < -20))
 
             )){
 
                 // Determine required steering to keep on heading
-                turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
+                dt.turnSpeed = getSteeringCorrection(heading, P_DRIVE_GAIN);
 
                 // if driving in reverse, the motor correction also needs to be reversed
                 if (distance < 0)
-                    turnSpeed *= -1.0;
+                    dt.turnSpeed *= -1.0;
                 // if you want to extend vertical up in parallel with driving
                 if (readyToHang) {
                     tf.hangSpecimen();
@@ -351,18 +278,18 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 }
 
                 // Apply the turning correction to the current driving speed.
-                moveRobot(driveSpeed, turnSpeed);
+                dt.moveRobot(dt.driveSpeed, dt.turnSpeed);
 
                 // Display drive status for the driver.
                 sendTelemetry(true);
             }
 
             // Stop all motion & Turn off RUN_TO_POSITION
-            moveRobot(0, 0);
-            leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            dt.moveRobot(0, 0);
+            dt.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            dt.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            dt.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            dt.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
 
@@ -398,25 +325,25 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         while (
                 opModeIsActive() &&
                         ((Math.abs(headingError) > HEADING_THRESHOLD) ||
-                                (leftFrontDrive.getVelocity() > 10 || leftFrontDrive.getVelocity() < -10)
+                                (dt.leftFrontDrive.getVelocity() > 10 || dt.leftFrontDrive.getVelocity() < -10)
                         )
         ) {
 
             // Determine required steering to keep on heading
-            turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+            dt.turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
 
             // Clip the speed to the maximum permitted value.
-            turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
+            dt.turnSpeed = Range.clip(dt.turnSpeed, -maxTurnSpeed, maxTurnSpeed);
 
             // Pivot in place by applying the turning correction
-            moveRobot(0, turnSpeed);
+            dt.moveRobot(0, dt.turnSpeed);
 
             // Display drive status for the driver.
             sendTelemetry(false);
         }
 
         // Stop all motion;
-        moveRobot(0, 0);
+        dt.moveRobot(0, 0);
     }
 
     /**
@@ -440,20 +367,20 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         // keep looping while we have time remaining.
         while (opModeIsActive() && (holdTimer.time() < holdTime)) {
             // Determine required steering to keep on heading
-            turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
+            dt.turnSpeed = getSteeringCorrection(heading, P_TURN_GAIN);
 
             // Clip the speed to the maximum permitted value.
-            turnSpeed = Range.clip(turnSpeed, -maxTurnSpeed, maxTurnSpeed);
+            dt.turnSpeed = Range.clip(dt.turnSpeed, -maxTurnSpeed, maxTurnSpeed);
 
             // Pivot in place by applying the turning correction
-            moveRobot(0, turnSpeed);
+            dt.moveRobot(0, dt.turnSpeed);
 
             // Display drive status for the driver.
             sendTelemetry(false);
         }
 
         // Stop all motion;
-        moveRobot(0, 0);
+        dt.moveRobot(0, 0);
     }
 
     // **********  LOW Level driving functions.  ********************
@@ -480,33 +407,6 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     }
 
     /**
-     * Take separate drive (fwd/rev) and turn (right/left) requests,
-     * combines them, and applies the appropriate speed commands to the left and right wheel motors.
-     * @param drive forward motor speed
-     * @param turn  clockwise turning motor speed.
-     */
-    public void moveRobot(double drive, double turn) {
-        driveSpeed = drive;     // save this value as a class member so it can be used by telemetry.
-        turnSpeed  = turn;      // save this value as a class member so it can be used by telemetry.
-
-        leftSpeed  = drive - turn;
-        rightSpeed = drive + turn;
-
-        // Scale speeds down if either one exceeds +/- 1.0;
-        double max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
-        if (max > 1.0)
-        {
-            leftSpeed /= max;
-            rightSpeed /= max;
-        }
-
-        leftBackDrive.setPower(leftSpeed);
-        rightBackDrive.setPower(rightSpeed);
-        leftFrontDrive.setPower(leftSpeed);
-        rightFrontDrive.setPower(rightSpeed);
-    }
-
-    /**
      *  Display the various control parameters while driving
      *
      * @param straight  Set to true if we are driving straight, and the encoder positions should be included in the telemetry.
@@ -516,17 +416,17 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         if (straight) {
             telemetry.addData("Motion", "Drive Straight");
             telemetry.addData("Target Pos L:R",  "%7d:%7d",      leftTarget,  rightTarget);
-            telemetry.addData("Actual Pos L:R",  "%7d:%7d",      leftBackDrive.getCurrentPosition(),
-                    rightBackDrive.getCurrentPosition());
+            telemetry.addData("Actual Pos L:R",  "%7d:%7d",      dt.leftBackDrive.getCurrentPosition(),
+                    dt.rightBackDrive.getCurrentPosition());
         } else {
             telemetry.addData("Motion", "Turning");
         }
 
         telemetry.addData("Heading- Target : Current", "%5.2f : %5.0f", targetHeading, getHeading());
-        telemetry.addData("Error  : Steer Pwr",  "%5.1f : %5.1f", headingError, turnSpeed);
-        telemetry.addData("Wheel Speeds L : R", "%5.2f : %5.2f", leftSpeed, rightSpeed);
-        telemetry.addData("Vertical Left Motor Position", verticalLeft.getCurrentPosition());
-        telemetry.addData("Vertical Right Motor Position", verticalRight.getCurrentPosition());
+        telemetry.addData("Error  : Steer Pwr",  "%5.1f : %5.1f", headingError, dt.turnSpeed);
+        telemetry.addData("Wheel Speeds L : R", "%5.2f : %5.2f", dt.leftSpeed, dt.rightSpeed);
+        telemetry.addData("Vertical Left Motor Position", tf.verticalLeft.getCurrentPosition());
+        telemetry.addData("Vertical Right Motor Position", tf.verticalRight.getCurrentPosition());
         telemetry.update();
     }
 
@@ -536,102 +436,5 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     public double getHeading() {
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.DEGREES);
-    }
-
-    public void hangSpecimen(int specimenNumber, double closeDistance){
-        chamber(false, 1);
-        telemetry.addData("Status: Hanging Specimen %d", specimenNumber);
-        telemetry.update();
-        //driveStraight(DRIVE_SPEED, closeDistance, 0.0, false);
-        chamber(false, 2);
-        chamber(true, 0);
-    }
-
-    public void chamber(boolean open, double extended) {
-        if (open){
-            clawservoe1 = ClawServoE.CLAW_OPEN;
-        }
-        else{
-            clawservoe1 = ClawServoE.CLAW_CLOSE;
-        }
-
-        if (clawservoe1 == ClawServoE.CLAW_CLOSE)
-            clawservo.setPosition(1.2); // vertical extension claw is closed
-        if (clawservoe1 == ClawServoE.CLAW_OPEN) {
-            clawservo.setPosition(0); // vertical extension claw is open
-            sleep(300);
-        }
-
-        if (extended == 0){
-            vertchame = VertE.RESET_CHAM;
-        }
-        if (extended == 1){
-            vertchame = VertE.ABOVE_CHAM;
-        }
-        if (extended == 2){
-            vertchame = VertE.ON_CHAM;
-        }
-
-
-        // hardware calls
-        if (vertchame == VertE.ABOVE_CHAM) {
-            verticalLeft.setTargetPosition(1300);
-            verticalRight.setTargetPosition(-1300);
-        } else if (vertchame == VertE.ON_CHAM) {
-            verticalLeft.setTargetPosition(900);
-            verticalRight.setTargetPosition(-900);
-        } else if (vertchame == VertE.RESET_CHAM) {
-            verticalLeft.setTargetPosition(0);
-            verticalRight.setTargetPosition(0);
-        }
-        while(verticalLeft.isBusy() || verticalRight.isBusy()){
-            sendTelemetry(true);
-        }
-    }
-
-
-    public void grabSpecimen() {
-        sleep(100);
-        wall(true, false); //claw = open. vertical slides = down
-        sleep(300);
-        wall(false, false); //claw = close. vertical slides = down
-        sleep(300);
-        wall(false, true);  //claw = close. vertical slides = up
-        sleep(200);
-
-    }
-
-
-    public void wall(boolean open, boolean extended_vert) {
-        if (open){
-            clawservoe1 = ClawServoE.CLAW_OPEN;
-        }
-        else{
-            clawservoe1 = ClawServoE.CLAW_CLOSE;
-        }
-
-        if (clawservoe1 == ClawServoE.CLAW_CLOSE) {
-            clawservo.setPosition(1.2); //claw is closed
-        }
-        if (clawservoe1 == ClawServoE.CLAW_OPEN) {
-            clawservo.setPosition(0); //claw is open
-        }
-
-        if (extended_vert) {
-            verticalLeft.setTargetPosition(300);
-            verticalRight.setTargetPosition(-300);
-        } else {
-            verticalLeft.setTargetPosition(0);
-            verticalRight.setTargetPosition(0);
-        }
-
-        telemetry.addData("ClawServoPOS!", clawservo.getPosition());
-        telemetry.update();
-
-        telemetry.addData("Vertical Left Motor Position", verticalLeft.getCurrentPosition());
-        telemetry.addData("Vertical Right Motor Position", verticalRight.getCurrentPosition());
-
-        telemetry.update();
-
     }
 }

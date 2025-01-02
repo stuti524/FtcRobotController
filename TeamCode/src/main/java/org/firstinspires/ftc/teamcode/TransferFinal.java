@@ -1,18 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.CRServo;
 
-@TeleOp(name = "TransferFinal")
-public class TransferFinal extends LinearOpMode {
+public class TransferFinal {
     //Defining Servos with Hardware Maps:
     //Ascent Servos
     Servo servostop2;
@@ -27,26 +20,10 @@ public class TransferFinal extends LinearOpMode {
     Servo TrotateServo;
     Servo TgrabServo;
     Servo TgimbleServo;
-    
-    public DcMotor leftFrontDrive = null;
-    public DcMotor leftBackDrive = null;
-    public DcMotor rightFrontDrive = null;
-    public DcMotor rightBackDrive = null;
-
-    public double left = 0;
-    public double right = 0;
-    public double drive = 0;
-    public double turn = 0;
-    public double max = 0;
-
-    //Setting Gamepad Controls to false:
-    boolean rightBumper = false;
-    boolean leftBumper = false;
-    boolean dpadUp = false;
 
     //Vertical Slide Motors
-    public DcMotor verticalLeft;
-    public DcMotor verticalRight;
+    public DcMotor verticalLeft = null;
+    public DcMotor verticalRight = null;
 
     //Enums:
     enum IntakeRotateStates {
@@ -85,177 +62,53 @@ public class TransferFinal extends LinearOpMode {
         GIMBLE_HANG
     }
 
-    //Enum Initilization:
-    IntakeRotateStates rotateServoe = IntakeRotateStates.INTAKE_UP;
-    IntakeGrabStates grabServoe = IntakeGrabStates.GRAB_OPEN;
-    IntakeGimbleStates gimbleServoe = IntakeGimbleStates.GIMBLE_NINETY;
-    TransferGrabStates TgrabServoe = TransferGrabStates.TRANSFER_CLOSE;
-    TransferGimbleStates TgimbleServoe = TransferGimbleStates.GIMBLE_HANG;
-    TransferRotateStates TrotateServoe = TransferRotateStates.TRANSFER_HANG;
+    public void servoInitializationAuto(HardwareMap hMap, double verticalPower) {
+        //Defining Servos with Hardware Maps:
+        //Ascent Servos
+        this.servostop2 = hMap.get(Servo.class, "cs1");
+        this.servostop1 = hMap.get(Servo.class, "cs3");
 
+        //Intake Servos
+        this.rotateServo = hMap.get(Servo.class, "es3");
+        this.grabServo = hMap.get(Servo.class, "es5");
+        this.gimbleServo = hMap.get(Servo.class, "es1");
 
-    @Override
-    public void runOpMode(){
-        verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //Transfer Servos
+        this.TrotateServo = hMap.get(Servo.class, "cs5");
+        this.TgrabServo = hMap.get(Servo.class, "cs2");
+        this.TgimbleServo = hMap.get(Servo.class, "cs4");
 
-        verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //Vertical Motors
+        this.verticalLeft = hMap.get(DcMotor.class, "em1");
+        this.verticalRight = hMap.get(DcMotor.class, "em2");
 
-        // Define and Initialize Motors
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "cm2");
-        leftBackDrive = hardwareMap.get(DcMotor.class, "cm3");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "cm0");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "cm1");
+        //Initialize Servos, TODO: Include initialize values in enum definition
+        this.rotateServo.setPosition(0.95);
+        this.gimbleServo.setPosition(1.0);
+        this.grabServo.setPosition(0.0);
+        this.TrotateServo.setPosition(0.625);
+        this.TgimbleServo.setPosition(0.75);
+        this.TgrabServo.setPosition(0.0);
 
-        // If there are encoders connected, switch to RUN_USING_ENCODER mode for greater accuracy
-        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.servostop2.setPosition(0.20);
+        this.servostop1.setPosition(1.0);
 
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //Initialize Vertical Motors
+        this.verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
-        // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
-        // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        this.verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        servoInitializationAuto(hardwareMap);
+        this.verticalLeft.setTargetPosition(0);
+        this.verticalRight.setTargetPosition(0);
 
-        waitForStart();
+        this.verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        verticalLeft.setTargetPosition(0);
-        verticalRight.setTargetPosition(0);
-
-        verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        verticalLeft.setPower(0.7);
-        verticalRight.setPower(0.7);
-
-        while (opModeIsActive()) {
-
-            //Drive
-
-            // Run wheels in POV mode (note: The joystick goes negative when pushed forward, so negate it)
-            // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
-            // This way it's also easy to just drive straight, or just turn.
-            drive = -gamepad1.left_stick_y;
-            turn = gamepad1.right_stick_x;
-
-            // Combine drive and turn for blended motion.
-            //TEMP SOL - DIV by 2 to slow down the DT
-            left = (drive + turn) / 1.5;
-            right = (drive - turn) / 1.5;
-
-            // Normalize the values so neither exceed +/- 1.0
-            max = Math.max(Math.abs(left), Math.abs(right));
-            if (max > 1.0) {
-                left /= max;
-                right /= max;
-            }
-
-            // Output the safe vales to the motor drives.
-            leftFrontDrive.setPower(left);
-            leftBackDrive.setPower(left);
-            rightFrontDrive.setPower(right);
-            rightBackDrive.setPower(right);
-
-            telemetry.addData("drive %f", drive);
-            telemetry.addData("turn %f", turn);
-            telemetry.update();
-
-            // Gamepad Button Simplified:
-            leftBumper = gamepad1.left_bumper;
-            rightBumper = gamepad1.right_bumper;
-            dpadUp = gamepad1.dpad_up;
-
-            telemetry.addData("vertical left %f", verticalLeft.getCurrentPosition());
-            telemetry.addData("vertical right %f", verticalRight.getCurrentPosition());
-            telemetry.update();
-
-            // //Buisness Logic for Intake servos are in LM2 TELEOP and for Transfer Servos its not really needed
-
-            // // Business Logic for Transfer Servos:
-            //     // Transfer Rotate Servo:
-            //     if (TrotateServoe == TransferRotateStates.TRANSFER_UP && gamepad1.right_bumper == true && rightBumper == false) {
-            //         TrotateServoe = TransferRotateStates.TRANSFER_MIDDLE;
-            //     } else if (TrotateServoe == TransferRotateStates.TRANSFER_MIDDLE && gamepad1.right_bumper == true && rightBumper == false) {
-            //         TrotateServoe = TransferRotateStates.TRANSFER_DOWN;
-            //     } else if (TrotateServoe == TransferRotateStates.TRANSFER_DOWN && gamepad1.right_bumper == true && rightBumper == false) {
-            //         TrotateServoe = TransferRotateStates.TRANSFER_UP;
-            //     }
-
-            //     // Transfer Grab Servo:
-            //     if (TgrabServoe == TransferGrabStates.TRANSFER_OPEN && gamepad1.left_bumper == true && leftBumper == false) {
-            //         TgrabServoe = TransferGrabStates.TRANSFER_CLOSE;
-            //     }
-            //     else if (TgrabServoe == TransferGrabStates.TRANSFER_CLOSE && gamepad1.left_bumper == true && leftBumper == false) {
-            //         TgrabServoe = TransferGrabStates.TRANSFER_OPEN;
-            //     }
-
-            //     //Transfer Gimble Servo:
-            //     if (TgimbleServoe == TransferGimbleStates.TRANSFER_CENTER && gamepad1.dpad_up == true && dpadUp == false) {
-            //         TgimbleServoe = TransferGimbleStates.TRANSFER_NINETY;
-            //     }
-            //     else if (TgimbleServoe == TransferGimbleStates.TRANSFER_NINETY && gamepad1.dpad_up == true && dpadUp == false) {
-            //         TgimbleServoe = TransferGimbleStates.TRANSFER_CENTER;
-            //     }
-
-            // // Buisness Logic for Intake Servos:
-            //     // Intake Rotate Servo:
-            //     if (rotateServoe == IntakeRotateStates.INTAKE_UP && gamepad1.right_bumper == true && rightBumper == false) {
-            //     rotateServoe = IntakeRotateStates.INTAKE_MIDDLE;
-            //     }
-            //     else if (rotateServoe == IntakeRotateStates.INTAKE_MIDDLE && gamepad1.right_bumper == true && rightBumper == false) {
-            //     rotateServoe = IntakeRotateStates.INTAKE_DOWN;
-            //     }
-            //     else if (rotateServoe == IntakeRotateStates.INTAKE_DOWN && gamepad1.right_bumper == true && rightBumper == false) {
-            //     rotateServoe = IntakeRotateStates.INTAKE_UP;
-            //     }
-
-            //     // Intake Grab Servo:
-            //         if (grabServoe == IntakeGrabStates.GRAB_OPEN && gamepad1.left_bumper == true && leftBumper == false) {
-            //         grabServoe = IntakeGrabStates.GRAB_CLOSE;
-            //     }
-            //         else if (grabServoe == IntakeGrabStates.GRAB_CLOSE && gamepad1.left_bumper == true && leftBumper == false) {
-            //         grabServoe = IntakeGrabStates.GRAB_OPEN;
-            //     }
-
-            //     //Intake Gimble Servo:
-            //         if (gimbleServoe == IntakeGimbleStates.GIMBLE_CENTER && gamepad1.dpad_up == true && dpadUp == false) {
-            //     gimbleServoe = IntakeGimbleStates.GIMBLE_NINETY;
-            //     }
-            //         else if (gimbleServoe == IntakeGimbleStates.GIMBLE_NINETY && gamepad1.dpad_up == true && dpadUp == false) {
-            //     gimbleServoe = IntakeGimbleStates.GIMBLE_CENTER;
-            //     }
-
-            //Buisness Logic for the Macros
-            if (gamepad1.dpad_up == true) {
-                sampleTransfer();
-            }
-            if (gamepad1.dpad_down == true) {
-                specimenPickup();
-            }
-            if (gamepad1.dpad_right == true) {
-                hangSpecimen();
-            }
-            if (gamepad1.dpad_left == true) {
-                finishHang();
-            }
-
-            showTelemetry();
-
-        }
+        this.verticalLeft.setPower(verticalPower);
+        this.verticalRight.setPower(verticalPower);
     }
-
 
     public void showTelemetry() {
         telemetry.addData("RotateServoPOS", rotateServo.getPosition());
@@ -270,12 +123,12 @@ public class TransferFinal extends LinearOpMode {
         // 1. Initialization
         //controlTransfer(TransferRotateStates.TRANSFER_DOWN, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_NINETY);
         // 2. Orient the transfer into the correct position
-        controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
+        this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
         // 2. Grab the specimen
-        controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
-        verticalLeft.setTargetPosition(300);
-        verticalRight.setTargetPosition(-300);
-        sleep(400);
+        this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
+        this.verticalLeft.setTargetPosition(300);
+        this.verticalRight.setTargetPosition(-300);
+        sleep(50);
         // 3. Rotate the transfer back
         // controlTransfer(TransferRotateStates.TRANSFER_DOWN, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
     }
@@ -287,21 +140,18 @@ public class TransferFinal extends LinearOpMode {
         //this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_ADJUST, TransferGimbleStates.GIMBLE_HANG);
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
-
     }
 
     public void finishHang() {
         this.verticalLeft.setTargetPosition(900);
         this.verticalRight.setTargetPosition(-900);
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
-        sleep(200);
         // //3. Let go of specimen
         this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);
         // //4. Retract vertical while fliiping transfer to up position
         this.verticalLeft.setTargetPosition(500);
         this.verticalRight.setTargetPosition(-500);
         this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
-        sleep(200);
         this.verticalLeft.setTargetPosition(0);
         this.verticalRight.setTargetPosition(0);
     }
@@ -376,8 +226,10 @@ public class TransferFinal extends LinearOpMode {
         //Transfer Grab Servo:
         if (grab == TransferGrabStates.TRANSFER_CLOSE) {
             this.TgrabServo.setPosition(0); //Close Claw
-            sleep(100);
-            this.grabServo.setPosition(0);
+            if (this.grabServo.getPosition() != 0) {
+                sleep(100);
+                this.grabServo.setPosition(0);
+            }
         }
         if (grab == TransferGrabStates.TRANSFER_OPEN){
             this.TgrabServo.setPosition(1);//Open Claw
@@ -395,40 +247,18 @@ public class TransferFinal extends LinearOpMode {
             this.TgimbleServo.setPosition(1);
         }
         if (gimble == TransferGimbleStates.GIMBLE_HANG){
-            this.TgimbleServo.setPosition(0.8);
+            this.TgimbleServo.setPosition(0.75);
         }
         sleep(250);
 
     }
 
-    public void servoInitializationAuto(HardwareMap hmap) {
-        //Defining Servos with Hardware Maps:
-        //Ascent Servos
-        this.servostop2 = hmap.get(Servo.class, "cs1");
-        this.servostop1 = hmap.get(Servo.class, "cs3");
-
-        //Intake Servos
-        this.rotateServo = hmap.get(Servo.class, "es3");
-        this.grabServo = hmap.get(Servo.class, "es5");
-        this.gimbleServo = hmap.get(Servo.class, "es1");
-
-        //Transfer Servos
-        this.TrotateServo = hmap.get(Servo.class, "cs5");
-        this.TgrabServo = hmap.get(Servo.class, "cs2");
-        this.TgimbleServo = hmap.get(Servo.class, "cs4");
-
-        this.verticalLeft = hmap.get(DcMotor.class, "em1");
-        this.verticalRight = hmap.get(DcMotor.class, "em2");
-
-        this.rotateServo.setPosition(0.95);
-        this.gimbleServo.setPosition(1.0);
-        this.grabServo.setPosition(0.0);
-        this.TrotateServo.setPosition(0.625);
-        this.TgimbleServo.setPosition(0.8);
-        this.TgrabServo.setPosition(0.0);
-
-        this.servostop2.setPosition(0.20);
-        this.servostop1.setPosition(1.0);
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException var4) {
+            Thread.currentThread().interrupt();
+        }
 
     }
 }
