@@ -75,5 +75,70 @@ public class TankDriveTrainUtility {
         this.rightFrontDrive.setPower(this.rightSpeed);
     }
 
+    /**
+     * This is (not) our function for arcing, a special type of movement that allows for turning while moving.
+     *     Use the angle and length to determine where the robot will end up.
+     *
+     * @param angle
+     * @param length
+     * @param speed
+     */
+    public void arcRobot(double angle, double length, double speed){
+        //\frac{c*sin*(90-b)}{\sin2b}
+        Integer cpr = 28;
+        double arcBias = 0.0; //NOT RECOMMENDED BY ftcchad.com
+        double width = 17.25; //inches; this is thw width of the ROBOT
+        double bias = 1.0;
+        double gearratio = 19.2;
+        double diameter = 3.7715;
+        double cpi = (cpr * gearratio)/(Math.PI * diameter); //counts per inch -> counts per rotation / circumference
+        double radius = ((length + arcBias) * Math.sin(Math.toRadians(90-angle)))/(Math.sin(Math.toRadians(2 * angle)));
+
+        double conversion = cpi * bias;
+        boolean exit = false;
+        //telemetry.addData("radius", radius);
+        //telemetry.update();
+        //2\pi\left(r+a\right)\left(\frac{b}{180}\right)
+        //2\pi\left(r-a\right)\left(\frac{b}{180}\right)
+        //
+        double rightMotor;
+        double leftMotor;
+        rightMotor = 2 * Math.PI * (radius - (width / 2)) * (angle / 180);
+        leftMotor = 2 * Math.PI * (radius + (width / 2)) * (angle / 180);
+        int rightd = (int) (Math.round(rightMotor * conversion));
+        int leftd = (int) (Math.round(leftMotor * conversion));
+
+        this.leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //
+        this.leftBackDrive.setTargetPosition(0);
+        this.leftFrontDrive.setTargetPosition(0);
+        this.rightBackDrive.setTargetPosition(0);
+        this.rightFrontDrive.setTargetPosition(0);
+        this.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        this.rightFrontDrive.setTargetPosition(this.rightFrontDrive.getCurrentPosition() + rightd);
+        this.rightBackDrive.setTargetPosition(this.rightBackDrive.getCurrentPosition() + rightd);
+        this.leftFrontDrive.setTargetPosition(this.leftFrontDrive.getCurrentPosition() + leftd);
+        this.leftBackDrive.setTargetPosition(this.leftBackDrive.getCurrentPosition() + leftd);
+
+        this.leftBackDrive.setPower(speed);
+        this.leftFrontDrive.setPower(speed);
+        this.rightBackDrive.setPower((rightMotor / leftMotor) * speed);
+        this.rightFrontDrive.setPower((rightMotor / leftMotor) * speed);
+
+        while (this.rightFrontDrive.isBusy() || this.leftFrontDrive.isBusy()) {
+        }
+
+        this.leftFrontDrive.setPower(0);
+        this.leftBackDrive.setPower(0);
+        this.rightFrontDrive.setPower(0);
+        this.rightBackDrive.setPower(0);
+    }
 
 }

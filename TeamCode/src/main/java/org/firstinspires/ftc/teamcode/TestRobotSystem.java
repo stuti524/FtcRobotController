@@ -40,7 +40,8 @@ public class TestRobotSystem extends LinearOpMode {
             telemetry.update();
 
             if (gamepad1.dpad_up) {
-                tf.sampleTransfer();
+                tf.pickupSample();
+                tf.transferSampleToBasket();
             }
             if (gamepad1.dpad_down) {
                 tf.specimenPickup();
@@ -50,6 +51,16 @@ public class TestRobotSystem extends LinearOpMode {
             }
             if (gamepad1.dpad_left) {
                 tf.finishHang();
+            }
+            if (gamepad1.right_bumper) {
+                tf.dropSample();
+            }
+            if (gamepad1.a) {
+                dt.arcRobot(-55.0, 20.0, 0.8);
+                dt.arcRobot(55.0, 27.0, 0.8);
+                sleep(500);
+                dt.arcRobot(-55.0, -27.0, 0.8);
+                dt.arcRobot(55.0, -20.0, 0.8);
             }
         }
     }

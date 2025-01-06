@@ -126,16 +126,17 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     static final double     P_TURN_GAIN            = 0.03;     // Larger is more responsive, but also less stable.
     static final double     P_DRIVE_GAIN           = 0.03;     // Larger is more responsive, but also less stable.
 
+    boolean specimenAuto                           = true;
+
     TankDriveTrainUtility dt = new TankDriveTrainUtility();
     TransferFinal tf = new TransferFinal();
+
 
     @Override
     public void runOpMode() {
 
         /* The next two lines define Hub orientation.
          * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
-         *
-         * To Do:  EDIT these two lines to match YOUR mounting configuration.
          */
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.UP;
@@ -146,67 +147,115 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
+        //Initialize Drivetrain Motors and Servos
         dt.initialize(hardwareMap);
         tf.servoInitializationAuto(hardwareMap, 0.7);
 
-        // Wait for the game to start (Display Gyro value while waiting)
+        // Wait for the game to start (Display Gyro value and Basket and Specimen Auto while waiting)
         while (opModeInInit()) {
+            if (gamepad1.right_bumper)
+                specimenAuto = true;
+            if (gamepad1.left_bumper)
+                specimenAuto = false;
+
+            if (specimenAuto)
+                telemetry.addData("AutoWithSpecimen", ")");
+            else
+                telemetry.addData("AutoWithBasket", "(");
+
             telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
             telemetry.update();
         }
 
-        //reset the heading
+        //Reset the heading
         imu.resetYaw();
 
-        /// Execute Game Path
+        /// Hang the first specimen (common between basket and specimen auto)
         driveStraight(DRIVE_SPEED, 31, 0.0, true);  // Drive forward 31 inches
         driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
         tf.finishHang();
+
         /// Run one of the following 2 Auto paths: Only Specimen scoring OR Sample scoring in basket
-        // Get specimen and hang them
-        runAutoWithSpecimen();
-        //TODO: Auto to get "Yellow" samples to score in high basket
-        runAutoWithBasket();
-        /// End Game Path
+        if (specimenAuto)
+            runAutoWithSpecimen(); //Get specimen and hang them
+        else
+            runAutoWithBasket(); //TODO: Auto to get "Yellow" samples to score in high basket
+
+        /// End Game Path with telemetry
         telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(1000);  // Pause to display last telemetry message.
     }
 
-    /**
-     *
-     */
     public void runAutoWithSpecimen () {
-        ///Drive backward x inches
+        ///Drive backward 20 inches
         driveStraight(DRIVE_SPEED, -20, 0.0, false);
-        ///Turn at a angle
-        turnToHeading(TURN_SPEED, -50);                     // Turn 50 degrees to the right
-        ///Drive forward  y inches at a y1 angle
-        driveStraight(DRIVE_SPEED, 30, getHeading(), false);
+        ///Turn at a 50 degree angle to the right
+        turnToHeading(TURN_SPEED, -50, 5);
+        ///Drive forward 63 inches at a 20 degree angle to the right
+        driveStraight(DRIVE_SPEED, 30, -50, false);
         driveStraight(DRIVE_SPEED, 33, -20, false);
         ///Reorient the robot to 0 degrees
-        turnToHeading(TURN_SPEED, 0);
-        ///Go backwards z inches
+        turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
+        ///Go backwards 61 inches
         driveStraight(DRIVE_SPEED , -53, 0, false);
         driveStraight(DRIVE_SPEED-0.1, -8, 0, false);
+        ///Pickup the preset specimen from the wall
         tf.specimenPickup();
-        driveStraight(DRIVE_SPEED, 8, 0, false);
-        turnToHeading(TURN_SPEED, 90);
-        driveStraight(DRIVE_SPEED, 43, getHeading(), true);
-        turnToHeading(TURN_SPEED, 0);
-        driveStraight(DRIVE_SPEED-0.1, 20, getHeading(), false);
-        driveStraight(DRIVE_SPEED/2, 2.5, getHeading(), false);
-        tf.finishHang();
-        /// Park before Auto period ends
-        driveStraight(DRIVE_SPEED + 0.1, -6, 0, false);
-        turnToHeading(DRIVE_SPEED + 0.1, 65.0);
-        driveStraight(DRIVE_SPEED + 0.1, -40, getHeading(), false);
-    }
-    /**
-     *
-     */
-    public void runAutoWithBasket() {
 
+
+        ///Drive forward 8 inches
+        driveStraight(DRIVE_SPEED-0.1, 10, 0, true); // old value is 10
+
+        dt.arcRobot(-55.0, 20.0, DRIVE_SPEED);
+        //
+        dt.arcRobot(55.0, 27.0, DRIVE_SPEED);
+//        driveStraight(DRIVE_SPEED, 8, 0, false);
+//        ///Turn 90 degrees to the left
+//        turnToHeading(TURN_SPEED, 90, 5);
+//        ///Go forward 43 inches
+//        driveStraight(DRIVE_SPEED, 43, 90, true);
+//        ///Reorient to 0
+//        turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
+        ///Drive forward 22.5 inches
+//        driveStraight(DRIVE_SPEED-0.1, 10, 0, true);
+        driveStraight(DRIVE_SPEED-0.1, 5.5, 0,false); // old value 2.5
+        ///Hang specimen
+        tf.finishHang();
+        ///Park before Auto period ends
+        driveStraight(DRIVE_SPEED + 0.1, -6, 0, false);
+        turnToHeading(DRIVE_SPEED + 0.1, 65.0, 5);
+        driveStraight(DRIVE_SPEED + 0.1, -45, 65, false);
+    }
+
+    public void runAutoWithBasket() {
+        ///Go back 15 inches
+        driveStraight(DRIVE_SPEED , -15, 0, false);
+        ///Turn left 90 degrees
+        turnToHeading(TURN_SPEED, 90, 5);
+        ///Go forward y inches
+        driveStraight(DRIVE_SPEED , 38, 90, false);
+        ///Reorient to 0
+        turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
+        ///Go forward 7 inches
+        driveStraight(DRIVE_SPEED , 7, 0, false);
+        ///Pickup the first preset sample from the ground
+        tf.pickupSample();
+        ///Transfer sample to the transfer claw
+        tf.transferSampleToBasket();
+        ///Go back -30 inches in at a 45 angle
+        turnToHeading(TURN_SPEED, -45, HEADING_THRESHOLD);
+        driveStraight(DRIVE_SPEED/2 , -30, -45, false);
+        ///Drop sample into the high basket
+        tf.dropSample();
+        ////Scoring the 2nd Sample
+        ///Reorient to 0
+        ///Go forward q inches and lower the vertical slides to 0
+        driveStraight(DRIVE_SPEED/2 , 24, getHeading(), false);
+        ///Pickup the first preset sample from the ground
+        ///Transfer sample to the transfer claw
+        ///Go back r in at a s angle
+        ///Drop the sample into the high basket
     }
 
     /*
@@ -307,7 +356,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
      *              0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *              If a relative angle is required, add/subtract from current heading.
      */
-    public void turnToHeading(double maxTurnSpeed, double heading) {
+    public void turnToHeading(double maxTurnSpeed, double heading, double headingTolerance) {
 
         // Run getSteeringCorrection() once to pre-calculate the current error
         getSteeringCorrection(heading, P_DRIVE_GAIN);
@@ -324,7 +373,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
         while (
                 opModeIsActive() &&
-                        ((Math.abs(headingError) > HEADING_THRESHOLD) ||
+                        ((Math.abs(headingError) > headingTolerance) ||
                                 (dt.leftFrontDrive.getVelocity() > 10 || dt.leftFrontDrive.getVelocity() < -10)
                         )
         ) {
