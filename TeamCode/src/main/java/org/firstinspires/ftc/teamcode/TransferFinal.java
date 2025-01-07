@@ -52,7 +52,7 @@ public class TransferFinal {
 
     enum TransferStates {
         TRANSFER_DOWN(0.796),   //1914
-        TRANSFER_MIDDLE(0.200), //1080
+        TRANSFER_MIDDLE(0.250), //1080
         TRANSFER_UP(0),
         TRANSFER_HANG(0.5),  //1455  0.468
         TRANSFER_CLOSE(0),
@@ -131,7 +131,61 @@ public class TransferFinal {
         this.horizontalMotor.setPower(0.5);
 
     }
+    public void servoInitializationTeleop(HardwareMap hMap, double verticalPower) {
+        //Defining Servos with Hardware Maps:
+        //Ascent Servos
+        this.servostop2 = hMap.get(Servo.class, "cs1");
+        this.servostop1 = hMap.get(Servo.class, "cs3");
 
+        //Intake Servos
+        this.rotateServo = hMap.get(Servo.class, "es3");
+        this.grabServo = hMap.get(Servo.class, "es5");
+        this.gimbleServo = hMap.get(Servo.class, "es1");
+
+        //Transfer Servos
+        this.TrotateServo = hMap.get(Servo.class, "cs5");
+        this.TgrabServo = hMap.get(Servo.class, "cs2");
+        this.TgimbleServo = hMap.get(Servo.class, "cs4");
+
+        //Vertical Motors
+//        this.verticalLeft = hMap.get(DcMotor.class, "em1");
+//        this.verticalRight = hMap.get(DcMotor.class, "em2");
+//
+//        this.horizontalMotor = hMap.get(DcMotor.class, "em0");
+
+        //Initialize Servos:
+//        this.rotateServo.setPosition(IntakeStates.INTAKE_UP.value());
+//        this.gimbleServo.setPosition(IntakeStates.GIMBLE_NINETY.value());
+//        this.grabServo.setPosition(IntakeStates.GRAB_OPEN.value());
+//        this.TrotateServo.setPosition(TransferStates.TRANSFER_HANG.value());
+//        this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
+//        this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
+//
+//        this.servostop2.setPosition(0.20);
+//        this.servostop1.setPosition(1.0);
+//
+//        //Initialize Vertical Motors
+//        this.verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        this.verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        this.horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//
+//        this.verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        this.verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        this.horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        this.verticalLeft.setTargetPosition(0);
+//        this.verticalRight.setTargetPosition(0);
+//        this.horizontalMotor.setTargetPosition(0);
+//
+//        this.verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        this.verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        this.horizontalMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//        this.verticalLeft.setPower(verticalPower);
+//        this.verticalRight.setPower(verticalPower);
+//        this.horizontalMotor.setPower(1);
+
+    }
     public void showTelemetry() {
         telemetry.addData("RotateServoPOS", rotateServo.getPosition());
         telemetry.addData("GimbleServoPOS", gimbleServo.getPosition());
@@ -153,6 +207,7 @@ public class TransferFinal {
         sleep(50);
         // 3. Rotate the transfer back
         // controlTransfer(TransferRotateStates.TRANSFER_DOWN, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
+
     }
 
     public void hangSpecimen() {
@@ -189,20 +244,22 @@ public class TransferFinal {
     public void sampleTransfer() {
         // 1. Position the intake claw right above the sample
         // controlIntake(IntakeRotateStates.INTAKE_MIDDLE, IntakeGrabStates.GRAB_OPEN, IntakeGimbleStates.GIMBLE_NINETY);
-        // //sleep(250);
+        //sleep(250);
         // // 2. Pickup the sample with the intake claw
         // controlIntake(IntakeRotateStates.INTAKE_DOWN, IntakeGrabStates.GRAB_CLOSE, IntakeGimbleStates.GIMBLE_NINETY);
         //sleep(250);
         // 3. Position the rotate servo to the correct position
+
         this.controlIntake(IntakeStates.INTAKE_UP, IntakeStates.GRAB_CLOSE, IntakeStates.GIMBLE_NINETY);
         // sleep(250);
         // 4. Loose power to position the sample correctly in the claw
         this.controlIntake(IntakeStates.INTAKE_UP, IntakeStates.GRAB_ADJUST, IntakeStates.GIMBLE_NINETY);
         //sleep(250);
         // 5. Bring the transfer directly over the sample
-        this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
-        sleep(1000);
+        this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
+        //sleep(500);
         // 6. Grab the sample with the transfer claw
+        this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
         this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_NINETY);
         //sleep(250);
         // 7. Rotate the transfer while holding the sample
@@ -223,9 +280,11 @@ public class TransferFinal {
         this.controlIntake(IntakeStates.INTAKE_UP, IntakeStates.GRAB_ADJUST, IntakeStates.GIMBLE_NINETY);
         //sleep(250);
         // 5. Bring the transfer directly over the sample
-        this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
-        sleep(1000);
+        this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
+        //this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
+        //sleep(1000);
         // 6. Grab the sample with the transfer claw
+        this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_NINETY);
         this.controlTransfer(TransferStates.TRANSFER_DOWN, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_NINETY);
         //sleep(250);
         this.verticalLeft.setTargetPosition(2100); //MAX VERTICAL POSITION
@@ -244,51 +303,52 @@ public class TransferFinal {
         //Intake Rotate Servo:
         if (this.rotateServo.getPosition() != rotate.value()){
             this.rotateServo.setPosition(rotate.value());
-            sleep(300);
+            sleep(250);
         }
         //Intake Grab Servo:
         if (this.grabServo.getPosition() != grab.value()){
             this.grabServo.setPosition(grab.value());
-            sleep(150);
+            sleep(200);
         }
 
         if (grab == IntakeStates.GRAB_ADJUST) {
             this.grabServo.setPosition(IntakeStates.GRAB_ADJUST.value());
-            sleep(300);
+            sleep(200);
             this.grabServo.setPosition(IntakeStates.GRAB_CLOSE.value());
         }
         //Intake Gimble Servo:
         if (this.gimbleServo.getPosition() != gimble.value()){
             this.gimbleServo.setPosition(gimble.value());
-            sleep(250);
+            sleep(200);
         }
     }
+
     public void controlTransfer(TransferStates rotate, TransferStates grab, TransferStates gimble) {
         // Hardware Calls for Transfer Servos:
         // Transfer Rotate Servo:
         if (this.TrotateServo.getPosition() != rotate.value()){
             this.TrotateServo.setPosition(rotate.value());
-            sleep(250);
+            sleep(500);
         }
 
         // Transfer Grab Servo:
         if(this.TgrabServo.getPosition() != grab.value()){
             this.TgrabServo.setPosition(grab.value());
-            sleep(250);
+            sleep(200);
         }
         if (grab == TransferStates.TRANSFER_CLOSE) {
             this.TgrabServo.setPosition(0); //Close Claw
             if (this.grabServo.getPosition() != IntakeStates.GRAB_OPEN.value()) { //
-                sleep(100);
+                //sleep(100);
                 this.grabServo.setPosition(IntakeStates.GRAB_OPEN.value());
-                sleep(250);
+                sleep(200);
             }
         }
 
         // Transfer Gimbal Servo:
         if(this.TgimbleServo.getPosition() != gimble.value()) {
             this.TgimbleServo.setPosition(gimble.value());
-            sleep(250);
+            sleep(300);
         }
 
     }

@@ -171,7 +171,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         imu.resetYaw();
 
         /// Hang the first specimen (common between basket and specimen auto)
-        driveStraight(DRIVE_SPEED, 31, 0.0, true);  // Drive forward 31 inches
+        driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
         driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
         tf.finishHang();
 
@@ -199,33 +199,25 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
         ///Go backwards 61 inches
         driveStraight(DRIVE_SPEED , -53, 0, false);
-        driveStraight(DRIVE_SPEED-0.1, -8, 0, false);
+        driveStraight(DRIVE_SPEED-0.3, -7, 0, false);
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
-
-
+        ///Orient Specimen
+        tf.hangSpecimen();
         ///Drive forward 8 inches
-        driveStraight(DRIVE_SPEED-0.1, 10, 0, true); // old value is 10
-
-        dt.arcRobot(-55.0, 20.0, DRIVE_SPEED);
-        //
-        dt.arcRobot(55.0, 27.0, DRIVE_SPEED);
-//        driveStraight(DRIVE_SPEED, 8, 0, false);
-//        ///Turn 90 degrees to the left
-//        turnToHeading(TURN_SPEED, 90, 5);
-//        ///Go forward 43 inches
-//        driveStraight(DRIVE_SPEED, 43, 90, true);
-//        ///Reorient to 0
-//        turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
-        ///Drive forward 22.5 inches
-//        driveStraight(DRIVE_SPEED-0.1, 10, 0, true);
-        driveStraight(DRIVE_SPEED-0.1, 5.5, 0,false); // old value 2.5
-        ///Hang specimen
+        dt.arcRobot(-55.0, 22.0, 1.0);
+        dt.arcRobot(55.0, 35.0, 1.0);
         tf.finishHang();
         ///Park before Auto period ends
-        driveStraight(DRIVE_SPEED + 0.1, -6, 0, false);
-        turnToHeading(DRIVE_SPEED + 0.1, 65.0, 5);
-        driveStraight(DRIVE_SPEED + 0.1, -45, 65, false);
+        dt.arcRobot(-55.0, -35.0, 1.0);
+        dt.arcRobot(55.0, -21.0, 1.0);
+        tf.specimenPickup();
+        tf.hangSpecimen();
+        ///TRY THIS: NEW CODE
+        dt.arcRobot(-55.0, 22.0, 1.0);
+        dt.arcRobot(55.0, 35.0, 1.0);
+        tf.finishHang();
+
     }
 
     public void runAutoWithBasket() {

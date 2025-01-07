@@ -62,6 +62,15 @@ public class TestRobotSystem extends LinearOpMode {
                 dt.arcRobot(-55.0, -27.0, 0.8);
                 dt.arcRobot(55.0, -20.0, 0.8);
             }
+            if (gamepad1.b) {
+                //tf.specimenPickup();
+                ///Orient Specimen
+                //tf.hangSpecimen();
+                ///Drive forward 8 inches
+                dt.arcRobot(-55.0, 22.0, 1.0);
+                dt.arcRobot(55.0, 35.0, 1.0);
+
+            }
         }
     }
 }
