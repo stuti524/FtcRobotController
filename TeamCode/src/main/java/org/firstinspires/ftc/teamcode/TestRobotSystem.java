@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
 @TeleOp(name = "TestRobotSystem")
+@Disabled
 public class TestRobotSystem extends LinearOpMode {
     TankDriveTrainUtility dt = new TankDriveTrainUtility();
     TransferFinal tf = new TransferFinal();

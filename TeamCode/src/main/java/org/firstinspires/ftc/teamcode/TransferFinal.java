@@ -51,16 +51,16 @@ public class TransferFinal {
         }
 
     enum TransferStates {
-        TRANSFER_DOWN(0.796),   //1914
+        TRANSFER_DOWN(0.7),   //1914
         TRANSFER_MIDDLE(0.250), //1080
         TRANSFER_UP(0.1),
         TRANSFER_HANG(0.5),  //1455  0.468
         TRANSFER_CLOSE(0.32),
         TRANSFER_OPEN(0.52),
         TRANSFER_ADJUST(0.35),
-        TRANSFER_CENTER(0.7),
-        TRANSFER_NINETY(1),
-        GIMBLE_HANG(0.75);
+        TRANSFER_CENTER(0.5),
+        TRANSFER_NINETY(0.9),
+        GIMBLE_HANG(0.66);
         private final double position;  // Field to store the position
 
         // Constructor to initialize the position field with the passed value
@@ -102,11 +102,11 @@ public class TransferFinal {
         this.rotateServo.setPosition(IntakeStates.INTAKE_UP.value());
         this.gimbleServo.setPosition(IntakeStates.GIMBLE_NINETY.value());
         this.grabServo.setPosition(IntakeStates.GRAB_OPEN.value());
-        this.TrotateServo.setPosition(TransferStates.TRANSFER_HANG.value());
+        this.TrotateServo.setPosition(0.68);
         this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
         this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
 
-        this.servostop2.setPosition(0.20);
+        this.servostop2.setPosition(0.12);
         this.servostop1.setPosition(1.0);
 
         //Initialize Vertical Motors
@@ -196,6 +196,8 @@ public class TransferFinal {
         telemetry.update();
     }
     public void specimenPickup() {
+        this.verticalLeft.setPower(1);
+        this.verticalRight.setPower(1);
         // 1. Initialization
         //controlTransfer(TransferRotateStates.TRANSFER_DOWN, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_NINETY);
         // 2. Orient the transfer into the correct position
@@ -211,6 +213,8 @@ public class TransferFinal {
     }
 
     public void hangSpecimen() {
+        this.verticalLeft.setPower(1);
+        this.verticalRight.setPower(1);
         //1. Intialize transfer in the up position
         //this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
         //2. Raise vertical while transfer rotates into down position
@@ -222,8 +226,10 @@ public class TransferFinal {
     }
 
     public void finishHang() {
-        this.verticalLeft.setTargetPosition(900);
-        this.verticalRight.setTargetPosition(-900);
+        this.verticalLeft.setPower(1);
+        this.verticalRight.setPower(1);
+        this.verticalLeft.setTargetPosition(970);
+        this.verticalRight.setTargetPosition(-970);
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
@@ -235,6 +241,11 @@ public class TransferFinal {
         this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
         this.verticalLeft.setTargetPosition(0);
         this.verticalRight.setTargetPosition(0);
+        do {this.verticalLeft.setTargetPosition(0);
+            this.verticalRight.setTargetPosition(0);}
+        while (this.verticalLeft.isBusy() || this.verticalRight.isBusy());
+        this.verticalLeft.setPower(0);
+        this.verticalRight.setPower(0);
     }
     public void pickupSample() {
         //this.controlIntake(IntakeRotateStates.INTAKE_MIDDLE, IntakeGrabStates.GRAB_OPEN, IntakeGimbleStates.GIMBLE_NINETY);
@@ -268,6 +279,8 @@ public class TransferFinal {
     }
 
     public void transferSampleToBasket() {
+        this.verticalLeft.setPower(1);
+        this.verticalRight.setPower(1);
         // 1. Position the intake claw right above the sample
         // controlIntake(IntakeRotateStates.INTAKE_MIDDLE, IntakeGrabStates.GRAB_OPEN, IntakeGimbleStates.GIMBLE_NINETY);
         // //sleep(250);

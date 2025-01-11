@@ -171,9 +171,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         imu.resetYaw();
 
         /// Hang the first specimen (common between basket and specimen auto)
-        driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
-        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
-        tf.finishHang();
+
 
         /// Run one of the following 2 Auto paths: Only Specimen scoring OR Sample scoring in basket
         if (specimenAuto)
@@ -188,6 +186,9 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     }
 
     public void runAutoWithSpecimen () {
+        driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
+        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
+        tf.finishHang();
         ///Drive backward 20 inches
         driveStraight(DRIVE_SPEED, -20, 0.0, false);
         ///Turn at a 50 degree angle to the right
@@ -198,8 +199,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
         ///Go backwards 61 inches
-        driveStraight(DRIVE_SPEED , -53, 0, false);
-        driveStraight(DRIVE_SPEED-0.2, -7, 0, false);
+        driveStraight(DRIVE_SPEED , -51.5, 0, false);
+        driveStraight(DRIVE_SPEED-0.2, -7.25, 0, false);
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
         ///Orient Specimen
@@ -211,7 +212,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         tf.finishHang();
         ///Park before Auto period ends
         dt.arcRobot(-55.0, -35.0, 1.0);
-        dt.arcRobot(55.0, -21.0, 1.0);
+        dt.arcRobot(55.0, -21.0, 1.0); //-21.0
 //        tf.specimenPickup();
 //        tf.hangSpecimen();
 //        ///TRY THIS: NEW CODE FOR HANGING THIRD SPECIMEN
@@ -222,28 +223,21 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     public void runAutoWithBasket() {
         ///Go back 15 inches
-        driveStraight(DRIVE_SPEED , -15, 0, false);
-        ///Turn left 90 degrees
-        turnToHeading(TURN_SPEED, 90, 5);
-        ///Go forward y inches
-        driveStraight(DRIVE_SPEED , 38, 90, false);
-        ///Reorient to 0
-        turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
-        ///Go forward 7 inches
-        driveStraight(DRIVE_SPEED , 7, 0, false);
-        ///Pickup the first preset sample from the ground
-        tf.pickupSample();
-        ///Transfer sample to the transfer claw
-        tf.transferSampleToBasket();
-        ///Go back -30 inches in at a 45 angle
-        turnToHeading(TURN_SPEED, -45, HEADING_THRESHOLD);
-        driveStraight(DRIVE_SPEED/2 , -30, -45, false);
-        ///Drop sample into the high basket
+        driveStraight(DRIVE_SPEED , 28, 0, false);
+        tf.verticalLeft.setTargetPosition(2100);
+        tf.verticalRight.setTargetPosition(2100);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_HANG);
         tf.dropSample();
+        ///Go forward y inches
+        ///Reorient to 0
+        ///Go forward 7 inches
+        ///Pickup the first preset sample from the ground
+        ///Transfer sample to the transfer claw
+        ///Go back -30 inches in at a 45 angle
+        ///Drop sample into the high basket
         ////Scoring the 2nd Sample
         ///Reorient to 0
         ///Go forward q inches and lower the vertical slides to 0
-        driveStraight(DRIVE_SPEED/2 , 24, getHeading(), false);
         ///Pickup the first preset sample from the ground
         ///Transfer sample to the transfer claw
         ///Go back r in at a s angle

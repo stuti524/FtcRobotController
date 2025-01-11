@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
 @TeleOp(name = "LM2Teleop")
+@Disabled
 public class LM2Teleop extends LinearOpMode {
     TransferFinal tf = new TransferFinal();
     enum StateE {

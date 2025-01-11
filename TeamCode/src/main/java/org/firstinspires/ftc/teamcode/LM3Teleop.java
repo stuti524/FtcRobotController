@@ -230,6 +230,9 @@ public class LM3Teleop extends LinearOpMode {
         verticalLeft1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         verticalRight1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        ((DcMotorEx)verticalLeft1).setTargetPositionTolerance(10);
+        ((DcMotorEx)verticalRight1).setTargetPositionTolerance(10);
+
         waitForStart();
 
 
@@ -243,6 +246,8 @@ public class LM3Teleop extends LinearOpMode {
 
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
+
+
 
         while(opModeInInit()) {
             idle();
@@ -265,8 +270,22 @@ public class LM3Teleop extends LinearOpMode {
 
             if (state != StateE.ASCENT_STATE) {
                 servostop1.setPosition(1.0);
-                servostop2.setPosition(0.20);
+                servostop2.setPosition(0.12);
             }
+//            if (verticalLeft1.getTargetPosition() == 0 && verticalRight1.getTargetPosition() == 0) {
+//                verticalLeft1.setPower(0);
+//                verticalRight1.setPower(0);
+//            }
+//            if (verticalLeft1.getTargetPosition() > 0 && verticalRight1.getTargetPosition() > 0) {
+//                verticalRight1.setPower(1);
+//                verticalLeft1.setPower(1);
+//            }
+//            if (horizontalMotor1.getTargetPosition() == 0) {
+//                horizontalMotor1.setPower(0);
+//            }
+//            if (horizontalMotor1.getTargetPosition() > 0) {
+//                horizontalMotor1.setPower(1);
+//            }
 
             if (gamepad1.x == true) {
                 state = StateE.CHAMBER_STATE;
@@ -291,8 +310,10 @@ public class LM3Teleop extends LinearOpMode {
 //                //drive();
 //                wall();
 //            }
+
             if (state == StateE.ASCENT_STATE) {
                 //boolean GPLB = gamepad1.left_bumper;
+
                 //drive();
                 ascent();
                 while (gamepad1.left_bumper) {
@@ -317,71 +338,41 @@ public class LM3Teleop extends LinearOpMode {
         }
         //Hardware calls
         if (hangE == HangE.ABOVE_RUNG) {
+            verticalLeft1.setPower(1);
+            verticalRight1.setPower(1);
             verticalLeft1.setTargetPosition(1500);
             verticalRight1.setTargetPosition(-1500);
             TrotateServo.setPosition(0.6);
             TgimbleServo.setPosition(1);
+            sleep(200);
             //THESE SERVO POS WORK
-            servostop1.setPosition(0);
-            servostop2.setPosition(0.6);
+            servostop1.setPosition(0.10);
+            servostop2.setPosition(0.78);
         }
 
-//        telemetry.addData("vertical left %f", verticalLeft1.getCurrentPosition());
-//        telemetry.addData("vertical right %f", verticalRight1.getCurrentPosition());
-//        telemetry.update();
-    }
+}
 
     public void ascentFinal() {
         boolean GPRB = gamepad1.right_bumper;
-        boolean GPRA = gamepad1.dpad_right;
+        horizontalMotor1.setPower(0);
+//        leftBackDrive.setPower(0);
+//        leftFrontDrive.setPower(0);
+//        rightBackDrive.setPower(0);
+//        rightFrontDrive.setPower(0);
+
         //Business Logic
         if (GPRB && hangE == HangE.ABOVE_RUNG) {
             hangE = HangE.ON_RUNG;
         }
-        if (GPRA && hangE == HangE.ON_RUNG) {
-            hangE = HangE.L3_RUNG;
-        }
+
         //L2
         if (hangE == HangE.ON_RUNG) {
+            verticalLeft1.setPower(1);
+            verticalRight1.setPower(1);
             verticalLeft1.setTargetPosition(0);
             verticalRight1.setTargetPosition(0);
-            //sleep(500);
-//            verticalLeft1.setTargetPosition(300);
-//            verticalRight1.setTargetPosition(-300);
-//
-//            sleep(500);
+            sleep(1000);
         }
-//        telemetry.addData("rightback", rightBackDrive.getCurrentPosition());
-//        telemetry.addData("leftback", leftBackDrive.getCurrentPosition());
-//        telemetry.addData("vertical left %f", verticalLeft1.getCurrentPosition());
-//        telemetry.addData("vertical right %f", verticalRight1.getCurrentPosition());
-//        telemetry.update();
-
-        //L3
-//        if(hangE==HangE.L3_RUNG) {
-//            verticalLeft1.setTargetPosition(200);
-//            verticalRight1.setTargetPosition(-200);
-//            sleep(250);
-//            verticalLeft1.setTargetPosition(300);
-//            verticalRight1.setTargetPosition(-300);
-//            sleep(250);
-//            //move up the slides
-//            servostop1.setPosition(1.0);
-//            servostop2.setPosition(0.20);
-//            //close the micro-servos
-//            sleep(100);
-//            verticalLeft1.setTargetPosition(1000);
-//            verticalRight1.setTargetPosition(-1000);
-//            sleep(250);
-//            //raise up the slides
-//            servostop1.setPosition(0);
-//            servostop2.setPosition(0.8);
-//            //open the micro-servos again
-//            sleep(100);
-//            //time for L3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//            verticalLeft1.setTargetPosition(0);
-//            verticalRight1.setTargetPosition(-0);
-//        }
     }
 
     public void drive() {
@@ -433,7 +424,7 @@ public class LM3Teleop extends LinearOpMode {
         }
         if (TrotateServoe == TransferRotateStates.TRANSFER_UP); {
             TgimbleServoe = TransferGimbleStates.TRANSFER_NINETY;
-            TgimbleServo.setPosition(1);
+            TgimbleServo.setPosition(0.9);
         }
 
         if (rightArrow == false && gamepad1.dpad_right == true && hortE == HortE.HORI_RETRACT) {
@@ -574,7 +565,7 @@ public class LM3Teleop extends LinearOpMode {
         // Hardware Calls for Transfer Servos:
         // Transfer Rotate Servo:
         if (rotate == TransferRotateStates.TRANSFER_DOWN)
-            TrotateServo.setPosition(0.796);//rotating intake fully down
+            TrotateServo.setPosition(0.7);//rotating intake fully down
         if (rotate == TransferRotateStates.TRANSFER_UP)
             TrotateServo.setPosition(0.1);//rotating intake fully upright
         if (rotate == TransferRotateStates.TRANSFER_MIDDLE)
@@ -599,13 +590,13 @@ public class LM3Teleop extends LinearOpMode {
 
         //Transfer Gimble Servo:
         if (gimble == TransferGimbleStates.TRANSFER_CENTER){
-            TgimbleServo.setPosition(0.7);
+            TgimbleServo.setPosition(0.5);
         }
         if (gimble == TransferGimbleStates.TRANSFER_NINETY){
-            TgimbleServo.setPosition(1);
+            TgimbleServo.setPosition(0.9);
         }
         if (gimble == TransferGimbleStates.GIMBLE_HANG){
-            TgimbleServo.setPosition(0.75);
+            TgimbleServo.setPosition(0.66);
         }
         sleep(150);
 
@@ -722,18 +713,25 @@ public class LM3Teleop extends LinearOpMode {
         upArrow = gamepad1.dpad_up;
 
         if (vertbaske == VertE.ABOVE_BASK) {
+            verticalLeft1.setPower(1);
+            verticalRight1.setPower(1);
             verticalLeft1.setTargetPosition(2100);
             verticalRight1.setTargetPosition(-2100);
 //            sleep(400);
             TrotateServoe = TransferRotateStates.TRANSFER_MIDDLE;
             TrotateServo.setPosition(0.25);//rotate
             TgimbleServoe = TransferGimbleStates.GIMBLE_BASKET;
-            TgimbleServo.setPosition(0.76);
+            TgimbleServo.setPosition(0.64);
 
         }
         if (vertbaske == VertE.ZERO_BASK) {
-            verticalLeft1.setTargetPosition(0);
-            verticalRight1.setTargetPosition(0);
+            verticalLeft1.setPower(1);
+            verticalRight1.setPower(1);
+            do {verticalLeft1.setTargetPosition(0);
+                verticalRight1.setTargetPosition(0);}
+            while (verticalLeft1.isBusy() || verticalRight1.isBusy());
+            verticalLeft1.setPower(0);
+            verticalRight1.setPower(0);
         }
 //        } else if (vertchame == VertE.ABOVE_CHAM && gamepaddpad_right1 == true) { // extended and gamepad.y is released
 //            vertchame = VertE.ON_CHAM;
@@ -808,7 +806,7 @@ public class LM3Teleop extends LinearOpMode {
         }
 
         if (TrotateServoe == TransferRotateStates.TRANSFER_DOWN) {
-            TrotateServo.setPosition(0.796);//rotating intake fully down
+            TrotateServo.setPosition(0.7);//rotating intake fully down
         }
 
         if (TrotateServoe == TransferRotateStates.TRANSFER_UP) {
@@ -819,10 +817,10 @@ public class LM3Teleop extends LinearOpMode {
             TrotateServo.setPosition(0.25);//rotate intake middle position
         }
         if (TgimbleServoe == TransferGimbleStates.TRANSFER_CENTER) {
-            TgimbleServo.setPosition(0.7);
+            TgimbleServo.setPosition(0.5);
         }
         if (TgimbleServoe == TransferGimbleStates.GIMBLE_HANG) {
-            TgimbleServo.setPosition(0.75);
+            TgimbleServo.setPosition(0.66);
         }
 
         //     //Transfer Gimble Servo:
@@ -835,6 +833,8 @@ public class LM3Teleop extends LinearOpMode {
 
     }
     public void specimenPickup(){
+        verticalLeft1.setPower(1);
+        verticalRight1.setPower(1);
         // 1. Initialization
         //controlTransfer(TransferRotateStates.TRANSFER_DOWN, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_NINETY);
         // 2. Orient the transfer into the correct position
@@ -855,6 +855,8 @@ public class LM3Teleop extends LinearOpMode {
     }
 
     public void hangSpecimen(){
+        verticalLeft1.setPower(1);
+        verticalRight1.setPower(1);
         //1. Intialize transfer in the up position
         //controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
         //2. Raise vertical while transfer rotates into down position
@@ -870,22 +872,27 @@ public class LM3Teleop extends LinearOpMode {
     }
 
     public void finishHang() {
-        verticalLeft1.setTargetPosition(900);
-        verticalRight1.setTargetPosition(-900);
+        verticalLeft1.setPower(1);
+        verticalRight1.setPower(1);
+        verticalLeft1.setTargetPosition(970);
+        verticalRight1.setTargetPosition(-970);
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
         sleep(400);
         // //3. Let go of specimen
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);
-        // //4. Retract vertical while fliiping transfer to up position
+        // //4. Retract vertical while flipping transfer to up position
         verticalLeft1.setTargetPosition(500);
         verticalRight1.setTargetPosition(-500);
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
         sleep(400);
-        verticalLeft1.setTargetPosition(0);
-        verticalRight1.setTargetPosition(0);
+       do {verticalLeft1.setTargetPosition(0);
+           verticalRight1.setTargetPosition(0);}
+        while (verticalLeft1.isBusy() || verticalRight1.isBusy());
         TgrabServoe = TransferGrabStates.TRANSFER_OPEN;
         TrotateServoe = TransferRotateStates.TRANSFER_UP;
         TgimbleServoe = TransferGimbleStates.TRANSFER_CENTER;
+        verticalLeft1.setPower(0);
+        verticalRight1.setPower(0);
     }
 }
 
