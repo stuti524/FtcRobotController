@@ -149,7 +149,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
         //Initialize Drivetrain Motors and Servos
         dt.initialize(hardwareMap);
-        tf.servoInitializationAuto(hardwareMap, 0.7);
+        tf.servoInitializationAuto(hardwareMap, 0.8);
 
         // Wait for the game to start (Display Gyro value and Basket and Specimen Auto while waiting)
         while (opModeInInit()) {
@@ -199,7 +199,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
         ///Go backwards 61 inches
         driveStraight(DRIVE_SPEED , -53, 0, false);
-        driveStraight(DRIVE_SPEED-0.3, -7, 0, false);
+        driveStraight(DRIVE_SPEED-0.2, -7, 0, false);
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
         ///Orient Specimen
@@ -207,17 +207,17 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         ///Drive forward 8 inches
         dt.arcRobot(-55.0, 22.0, 1.0);
         dt.arcRobot(55.0, 35.0, 1.0);
+        driveStraight(DRIVE_SPEED-0.2, 2, 0, false);
         tf.finishHang();
         ///Park before Auto period ends
         dt.arcRobot(-55.0, -35.0, 1.0);
         dt.arcRobot(55.0, -21.0, 1.0);
-        tf.specimenPickup();
-        tf.hangSpecimen();
-        ///TRY THIS: NEW CODE
-        dt.arcRobot(-55.0, 22.0, 1.0);
-        dt.arcRobot(55.0, 35.0, 1.0);
-        tf.finishHang();
-
+//        tf.specimenPickup();
+//        tf.hangSpecimen();
+//        ///TRY THIS: NEW CODE FOR HANGING THIRD SPECIMEN
+//        dt.arcRobot(-55.0, 22.0, 1.0);
+//        dt.arcRobot(55.0, 35.0, 1.0);
+//        tf.finishHang();
     }
 
     public void runAutoWithBasket() {

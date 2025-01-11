@@ -30,10 +30,10 @@ public class TransferFinal {
     public DcMotor horizontalMotor = null;
     //Enums:
     enum IntakeStates {
-            INTAKE_DOWN(0.15),
+            INTAKE_DOWN(0.12),
             INTAKE_MIDDLE(0.35),
             INTAKE_UP(0.95),
-            GRAB_CLOSE(1),
+            GRAB_CLOSE(0.56),
             GRAB_OPEN(0),
             GRAB_ADJUST(0.5),
             GIMBLE_CENTER(0.55),
@@ -53,11 +53,11 @@ public class TransferFinal {
     enum TransferStates {
         TRANSFER_DOWN(0.796),   //1914
         TRANSFER_MIDDLE(0.250), //1080
-        TRANSFER_UP(0),
+        TRANSFER_UP(0.1),
         TRANSFER_HANG(0.5),  //1455  0.468
-        TRANSFER_CLOSE(0),
-        TRANSFER_OPEN(1),
-        TRANSFER_ADJUST(0.4),
+        TRANSFER_CLOSE(0.32),
+        TRANSFER_OPEN(0.52),
+        TRANSFER_ADJUST(0.35),
         TRANSFER_CENTER(0.7),
         TRANSFER_NINETY(1),
         GIMBLE_HANG(0.75);
@@ -150,10 +150,10 @@ public class TransferFinal {
         //Vertical Motors
 //        this.verticalLeft = hMap.get(DcMotor.class, "em1");
 //        this.verticalRight = hMap.get(DcMotor.class, "em2");
-//
+
 //        this.horizontalMotor = hMap.get(DcMotor.class, "em0");
 
-        //Initialize Servos:
+//        Initialize Servos:
 //        this.rotateServo.setPosition(IntakeStates.INTAKE_UP.value());
 //        this.gimbleServo.setPosition(IntakeStates.GIMBLE_NINETY.value());
 //        this.grabServo.setPosition(IntakeStates.GRAB_OPEN.value());
@@ -161,25 +161,25 @@ public class TransferFinal {
 //        this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
 //        this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
 //
-//        this.servostop2.setPosition(0.20);
-//        this.servostop1.setPosition(1.0);
+////        this.servostop2.setPosition(0.20);
+////        this.servostop1.setPosition(1.0);
 //
 //        //Initialize Vertical Motors
 //        this.verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        this.verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        this.horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+////        this.horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //
 //        this.verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        this.verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        this.horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+////        this.horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
 //        this.verticalLeft.setTargetPosition(0);
 //        this.verticalRight.setTargetPosition(0);
-//        this.horizontalMotor.setTargetPosition(0);
+////        this.horizontalMotor.setTargetPosition(0);
 //
 //        this.verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        this.verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        this.horizontalMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+////        this.horizontalMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //
 //        this.verticalLeft.setPower(verticalPower);
 //        this.verticalRight.setPower(verticalPower);
@@ -264,6 +264,7 @@ public class TransferFinal {
         //sleep(250);
         // 7. Rotate the transfer while holding the sample
         this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_NINETY);
+//        this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_CENTER);
     }
 
     public void transferSampleToBasket() {
