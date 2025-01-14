@@ -60,7 +60,7 @@ public class TransferFinal {
         TRANSFER_ADJUST(0.35),
         TRANSFER_CENTER(0.5),
         TRANSFER_NINETY(0.9),
-        GIMBLE_HANG(0.66);
+        GIMBLE_HANG(0.62);
         private final double position;  // Field to store the position
 
         // Constructor to initialize the position field with the passed value
@@ -228,8 +228,8 @@ public class TransferFinal {
     public void finishHang() {
         this.verticalLeft.setPower(1);
         this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(970);
-        this.verticalRight.setTargetPosition(-970);
+        this.verticalLeft.setTargetPosition(950); ///move to 960 if vertical is slow or inconsistent
+        this.verticalRight.setTargetPosition(-950); ///move to -960 if vertical is slow or inconsistent
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);

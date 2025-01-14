@@ -596,7 +596,7 @@ public class LM3Teleop extends LinearOpMode {
             TgimbleServo.setPosition(0.9);
         }
         if (gimble == TransferGimbleStates.GIMBLE_HANG){
-            TgimbleServo.setPosition(0.66);
+            TgimbleServo.setPosition(0.62);
         }
         sleep(150);
 
@@ -820,7 +820,7 @@ public class LM3Teleop extends LinearOpMode {
             TgimbleServo.setPosition(0.5);
         }
         if (TgimbleServoe == TransferGimbleStates.GIMBLE_HANG) {
-            TgimbleServo.setPosition(0.66);
+            TgimbleServo.setPosition(0.62);
         }
 
         //     //Transfer Gimble Servo:
@@ -874,8 +874,8 @@ public class LM3Teleop extends LinearOpMode {
     public void finishHang() {
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
-        verticalLeft1.setTargetPosition(970);
-        verticalRight1.setTargetPosition(-970);
+        verticalLeft1.setTargetPosition(950); ///move to 960 if vertical is slow or inconsistent
+        verticalRight1.setTargetPosition(-950); ///move to -960 if vertical is slow or inconsistent
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
         sleep(400);
         // //3. Let go of specimen
