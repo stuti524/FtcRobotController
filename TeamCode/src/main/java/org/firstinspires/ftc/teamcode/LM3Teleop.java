@@ -869,7 +869,7 @@ public class LM3Teleop extends LinearOpMode {
         TrotateServoe = TransferRotateStates.TRANSFER_HANG;
         TgimbleServoe = TransferGimbleStates.GIMBLE_HANG;
         vertbaske = VertE.NULL_BASK;
-    }
+    }//teleop is op
 
     public void finishHang() {
         verticalLeft1.setPower(1);
