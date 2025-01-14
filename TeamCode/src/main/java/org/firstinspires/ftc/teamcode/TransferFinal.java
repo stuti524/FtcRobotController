@@ -223,7 +223,7 @@ public class TransferFinal {
         this.verticalRight.setTargetPosition(-450);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_ADJUST, TransferStates.GIMBLE_HANG);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
-    }//transfer slayy
+    }
 
     public void finishHang() {
         this.verticalLeft.setPower(1);

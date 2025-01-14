@@ -186,7 +186,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     }
 
     public void runAutoWithSpecimen () {
-        //auto slayy
+
         driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
         driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
         tf.finishHang();
