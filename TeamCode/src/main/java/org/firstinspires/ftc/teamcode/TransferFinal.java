@@ -60,7 +60,8 @@ public class TransferFinal {
         TRANSFER_ADJUST(0.35),
         TRANSFER_CENTER(0.5),
         TRANSFER_NINETY(0.9),
-        GIMBLE_HANG(0.62);
+        GIMBLE_HANG(0.62),
+        GIMBLE_BASKET(0.64);
         private final double position;  // Field to store the position
 
         // Constructor to initialize the position field with the passed value
@@ -223,7 +224,7 @@ public class TransferFinal {
         this.verticalRight.setTargetPosition(-450);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_ADJUST, TransferStates.GIMBLE_HANG);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
-    }
+    }//transfer slayy
 
     public void finishHang() {
         this.verticalLeft.setPower(1);
@@ -304,7 +305,7 @@ public class TransferFinal {
         this.verticalLeft.setTargetPosition(2100); //MAX VERTICAL POSITION
         this.verticalRight.setTargetPosition(-2100); //MAX VERTICAL POSITION
         // 7. Rotate the transfer while holding the sample
-        this.controlTransfer(TransferStates.TRANSFER_MIDDLE, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_CENTER);
+        this.controlTransfer(TransferStates.TRANSFER_MIDDLE, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_BASKET);
     }
 
     public void dropSample() {
@@ -362,7 +363,7 @@ public class TransferFinal {
         // Transfer Gimbal Servo:
         if(this.TgimbleServo.getPosition() != gimble.value()) {
             this.TgimbleServo.setPosition(gimble.value());
-            sleep(300);
+            sleep(250);
         }
 
     }

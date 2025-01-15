@@ -179,16 +179,16 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         else
             runAutoWithBasket(); //TODO: Auto to get "Yellow" samples to score in high basket
 
-        /// End Game Path with telemetry
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
-        sleep(1000);  // Pause to display last telemetry message.
+//        /// End Game Path with telemetry
+//        telemetry.addData("Path", "Complete");
+//        telemetry.update();
+//        sleep(1000);  // Pause to display last telemetry message.
     }
 
     public void runAutoWithSpecimen () {
-
+        ///Hang First Specimen
         driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
-        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
+        driveStraight(DRIVE_SPEED-0.3, 2.5, 0.0, false);  // Drive to get flush with submersible bar
         tf.finishHang();
         ///Drive backward 20 inches
         driveStraight(DRIVE_SPEED, -20, 0.0, false);
@@ -200,49 +200,44 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
         ///Go backwards 61 inches
-        driveStraight(DRIVE_SPEED , -51.5, 0, false);
-        driveStraight(DRIVE_SPEED-0.2, -7.25, 0, false);
+        driveStraight(DRIVE_SPEED , -51.5, 0, false); //-51.5 old distance
+        driveStraight(DRIVE_SPEED-0.1,  -7.5 , 0, false); //old speed: drive_speed-0.1
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
         ///Orient Specimen
         tf.hangSpecimen();
         ///Drive forward 8 inches
         dt.arcRobot(-55.0, 22.0, 1.0);
-        dt.arcRobot(55.0, 35.0, 1.0);
-        driveStraight(DRIVE_SPEED-0.2, 2, 0, false);
+        dt.arcRobot(55.0, 30.0, 1.0); //35 before
+        driveStraight(DRIVE_SPEED, 2, 0, false);
         tf.finishHang();
         ///Park before Auto period ends
         dt.arcRobot(-55.0, -35.0, 1.0);
-        dt.arcRobot(55.0, -21.0, 1.0); //-21.0
-//        tf.specimenPickup();
-//        tf.hangSpecimen();
-//        ///TRY THIS: NEW CODE FOR HANGING THIRD SPECIMEN
-//        dt.arcRobot(-55.0, 22.0, 1.0);
-//        dt.arcRobot(55.0, 35.0, 1.0);
+        dt.arcRobot(55.0, -10.0, 1.0); //-15
+        tf.specimenPickup();
+        tf.hangSpecimen();
+        dt.arcRobot(-55.0, 19.0, 1.0);
+        dt.arcRobot(55.0, 35.0, 1.0); //-21
+//        dt.arcRobot(-55.0, -35.0, 1.0);
+//        dt.arcRobot(55.0, -19.0, 1.0);
 //        tf.finishHang();
+
+        ///Lastly, declare Amrutha the biggest sigma/alpah
     }
 
     public void runAutoWithBasket() {
-        ///Go back 15 inches
-        driveStraight(DRIVE_SPEED , 28, 0, false);
+
+        driveStraight(DRIVE_SPEED, 25, 0, false);
+
         tf.verticalLeft.setTargetPosition(2100);
         tf.verticalRight.setTargetPosition(2100);
-        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_HANG);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.dropSample();
-        ///Go forward y inches
-        ///Reorient to 0
-        ///Go forward 7 inches
-        ///Pickup the first preset sample from the ground
-        ///Transfer sample to the transfer claw
-        ///Go back -30 inches in at a 45 angle
-        ///Drop sample into the high basket
-        ////Scoring the 2nd Sample
-        ///Reorient to 0
-        ///Go forward q inches and lower the vertical slides to 0
-        ///Pickup the first preset sample from the ground
-        ///Transfer sample to the transfer claw
-        ///Go back r in at a s angle
-        ///Drop the sample into the high basket
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.verticalLeft.setTargetPosition(0);
+        tf.verticalRight.setTargetPosition(0);
+        while(tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
+        }
     }
 
     /*

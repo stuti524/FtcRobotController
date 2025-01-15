@@ -83,7 +83,7 @@ public class TankDriveTrainUtility {
      * @param length
      * @param speed
      */
-    public void arcRobot(double angle, double length, double speed){
+    public void arcRobot(double angle, double length, double speed) {
         //\frac{c*sin*(90-b)}{\sin2b}
         Integer cpr = 28;
         double arcBias = 0.0; //NOT RECOMMENDED BY ftcchad.com
