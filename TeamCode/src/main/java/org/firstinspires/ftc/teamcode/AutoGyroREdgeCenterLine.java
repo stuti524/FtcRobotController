@@ -115,7 +115,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.8;     // Max driving speed for better distance accuracy.
+    static final double     DRIVE_SPEED             = 0.85;     // Max driving speed for better distance accuracy.
     static final double     TURN_SPEED              = 0.4;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
@@ -187,47 +187,45 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     public void runAutoWithSpecimen () {
         ///Hang First Specimen
-        driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
-        driveStraight(DRIVE_SPEED-0.3, 2.5, 0.0, false);  // Drive to get flush with submersible bar
+        driveStraight(DRIVE_SPEED-0.1, 31.5, 0.0, false, true);  // Drive forward 31 inches
+//      driveStraight(DRIVE_SPEED-0.3, 2.5, 0.0, false, false);  // Drive to get flush with submersible bar
         tf.finishHang();
         ///Drive backward 20 inches
-        driveStraight(DRIVE_SPEED, -20, 0.0, false);
+        driveStraight(DRIVE_SPEED, -20, 0.0, false, false);
         ///Turn at a 50 degree angle to the right
         turnToHeading(TURN_SPEED, -50, 5);
         ///Drive forward 63 inches at a 20 degree angle to the right
-        driveStraight(DRIVE_SPEED, 30, -50, false);
-        driveStraight(DRIVE_SPEED, 33, -20, false);
+        driveStraight(DRIVE_SPEED, 30, -50, false, false);
+        driveStraight(DRIVE_SPEED, 33, -20,false, false);
         ///Reorient the robot to 0 degrees
-        turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
+        turnToHeading(TURN_SPEED, 0, 5);
         ///Go backwards 61 inches
-        driveStraight(DRIVE_SPEED , -51.5, 0, false); //-51.5 old distance
-        driveStraight(DRIVE_SPEED-0.1,  -7.5 , 0, false); //old speed: drive_speed-0.1
+        driveStraight(DRIVE_SPEED , -51, 0,true, false); //-51.5 old distance
+        driveStraight(DRIVE_SPEED-0.2,  -7 , 0, true, false); //old speed: drive_speed-0.1
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
-        ///Orient Specimen
+        ///Orient Specimen #2
         tf.hangSpecimen();
         ///Drive forward 8 inches
         dt.arcRobot(-55.0, 22.0, 1.0);
-        dt.arcRobot(55.0, 30.0, 1.0); //35 before
-        driveStraight(DRIVE_SPEED, 2, 0, false);
+        dt.arcRobot(55.0, 33.0, 1.0); //35 before
         tf.finishHang();
         ///Park before Auto period ends
-        dt.arcRobot(-55.0, -35.0, 1.0);
-        dt.arcRobot(55.0, -10.0, 1.0); //-15
+        dt.arcRobot(-55.0, -32.0, 1.0);
+        dt.arcRobot(55.0, -11, 1.0); //-15
         tf.specimenPickup();
         tf.hangSpecimen();
-        dt.arcRobot(-55.0, 19.0, 1.0);
-        dt.arcRobot(55.0, 35.0, 1.0); //-21
+        dt.arcRobot(-55.0, 18.0, 1.0);
+        dt.arcRobot(55.0, 34.0, 1.0); //-21
+        //        tf.finishHang();
 //        dt.arcRobot(-55.0, -35.0, 1.0);
 //        dt.arcRobot(55.0, -19.0, 1.0);
-//        tf.finishHang();
-
         ///Lastly, declare Amrutha the biggest sigma/alpah
     }
 
     public void runAutoWithBasket() {
 
-        driveStraight(DRIVE_SPEED, 25, 0, false);
+        driveStraight(DRIVE_SPEED, 25, 0, true, false);
 
         tf.verticalLeft.setTargetPosition(2100);
         tf.verticalRight.setTargetPosition(2100);
@@ -261,7 +259,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
-    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean readyToHang) {
+    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean brake, boolean readyToHang) {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
@@ -281,6 +279,19 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             dt.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             dt.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             dt.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            if (brake) {
+                dt.leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                dt.leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                dt.rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                dt.rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            }
+            else {
+                dt.leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                dt.leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                dt.rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                dt.rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            }
 
             // Set the required driving speed  (must be positive for RUN_TO_POSITION)
             // Start driving straight, and then enter the control loop

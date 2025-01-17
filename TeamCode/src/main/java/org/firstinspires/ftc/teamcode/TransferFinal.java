@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class TransferFinal {
     //Defining Servos with Hardware Maps:
@@ -188,13 +191,17 @@ public class TransferFinal {
 
     }
     public void showTelemetry() {
-        telemetry.addData("RotateServoPOS", rotateServo.getPosition());
-        telemetry.addData("GimbleServoPOS", gimbleServo.getPosition());
-        telemetry.addData("GrabServoPOS", grabServo.getPosition());
-        telemetry.addData("TransferRotateServoPOS", TrotateServo.getPosition());
-        telemetry.addData("TransferGimbleServoPOS", TgimbleServo.getPosition());
-        telemetry.addData("TransferGrabServoPOS", TgrabServo.getPosition());
-        telemetry.update();
+//        telemetry.addData("RotateServoPOS", this.rotateServo.getPosition());
+//        telemetry.addData("GimbleServoPOS", this.gimbleServo.getPosition());
+//        telemetry.addData("GrabServoPOS", this.grabServo.getPosition());
+//        telemetry.addData("TransferRotateServoPOS", this.TrotateServo.getPosition());
+//        telemetry.addData("TransferGimbleServoPOS", this.TgimbleServo.getPosition());
+//        telemetry.addData("TransferGrabServoPOS", this.TgrabServo.getPosition());
+//        double vlCurrent = ((DcMotorEx)this.verticalLeft).getCurrent(CurrentUnit.MILLIAMPS);
+//        double vrCurrent = ((DcMotorEx)this.verticalRight).getCurrent(CurrentUnit.MILLIAMPS);
+//        double hmCurrent = ((DcMotorEx)this.horizontalMotor).getCurrent(CurrentUnit.MILLIAMPS);
+//        telemetry.addLine(String.format("Currents for VL: %s, VR: %s, H: %s", vlCurrent, vrCurrent, hmCurrent));
+//        telemetry.update();
     }
     public void specimenPickup() {
         this.verticalLeft.setPower(1);
@@ -229,8 +236,8 @@ public class TransferFinal {
     public void finishHang() {
         this.verticalLeft.setPower(1);
         this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(950); ///move to 960 if vertical is slow or inconsistent
-        this.verticalRight.setTargetPosition(-950); ///move to -960 if vertical is slow or inconsistent
+        this.verticalLeft.setTargetPosition(900); ///move to 960 if vertical is slow or inconsistent
+        this.verticalRight.setTargetPosition(-900); ///move to -960 if vertical is slow or inconsistent
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
@@ -247,6 +254,7 @@ public class TransferFinal {
         while (this.verticalLeft.isBusy() || this.verticalRight.isBusy());
         this.verticalLeft.setPower(0);
         this.verticalRight.setPower(0);
+        showTelemetry();
     }
     public void pickupSample() {
         //this.controlIntake(IntakeRotateStates.INTAKE_MIDDLE, IntakeGrabStates.GRAB_OPEN, IntakeGimbleStates.GIMBLE_NINETY);
