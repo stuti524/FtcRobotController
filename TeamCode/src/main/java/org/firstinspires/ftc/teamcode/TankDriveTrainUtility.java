@@ -84,6 +84,19 @@ public class TankDriveTrainUtility {
      * @param speed
      */
     public void arcRobot(double angle, double length, double speed) {
+
+        this.arcStart(angle, length, speed);
+
+        while (this.rightFrontDrive.isBusy() || this.leftFrontDrive.isBusy()) {
+        }
+
+        this.leftFrontDrive.setPower(0);
+        this.leftBackDrive.setPower(0);
+        this.rightFrontDrive.setPower(0);
+        this.rightBackDrive.setPower(0);
+    }
+
+    public void arcStart(double angle, double length, double speed) {
         //\frac{c*sin*(90-b)}{\sin2b}
         Integer cpr = 28;
         double arcBias = 0.0; //NOT RECOMMENDED BY ftcchad.com
@@ -131,14 +144,6 @@ public class TankDriveTrainUtility {
         this.leftFrontDrive.setPower(speed);
         this.rightBackDrive.setPower((rightMotor / leftMotor) * speed);
         this.rightFrontDrive.setPower((rightMotor / leftMotor) * speed);
-
-        while (this.rightFrontDrive.isBusy() || this.leftFrontDrive.isBusy()) {
-        }
-
-        this.leftFrontDrive.setPower(0);
-        this.leftBackDrive.setPower(0);
-        this.rightFrontDrive.setPower(0);
-        this.rightBackDrive.setPower(0);
     }
 
 }

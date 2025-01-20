@@ -33,10 +33,12 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 /*
@@ -116,7 +118,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
     static final double     DRIVE_SPEED             = 0.85;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.4;     // Max turn speed to limit turn rate.
+    static final double     TURN_SPEED              = 0.5;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
@@ -149,7 +151,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
         //Initialize Drivetrain Motors and Servos
         dt.initialize(hardwareMap);
-        tf.servoInitializationAuto(hardwareMap, 0.8);
+        tf.servoInitializationAuto(hardwareMap, 0.8, specimenAuto);
 
         // Wait for the game to start (Display Gyro value and Basket and Specimen Auto while waiting)
         while (opModeInInit()) {
@@ -157,16 +159,17 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 specimenAuto = true;
             if (gamepad1.left_bumper)
                 specimenAuto = false;
+            if (gamepad1.left_bumper || gamepad1.right_bumper) {
+                tf.servoInitializationAuto(hardwareMap, 0.8, specimenAuto);
+            }
 
             if (specimenAuto)
                 telemetry.addData("AutoWithSpecimen", ")");
             else
                 telemetry.addData("AutoWithBasket", "(");
-
             telemetry.addData(">", "Robot Heading = %4.0f", getHeading());
             telemetry.update();
         }
-
         //Reset the heading
         imu.resetYaw();
 
@@ -179,63 +182,78 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         else
             runAutoWithBasket(); //TODO: Auto to get "Yellow" samples to score in high basket
 
-//        /// End Game Path with telemetry
-//        telemetry.addData("Path", "Complete");
-//        telemetry.update();
-//        sleep(1000);  // Pause to display last telemetry message.
+        /// End Game Path with telemetry
+        telemetry.addData("Path", "Complete");
+        telemetry.update();
+        sleep(100);  // Pause to display last telemetry message.
     }
 
     public void runAutoWithSpecimen () {
         ///Hang First Specimen
-        driveStraight(DRIVE_SPEED-0.1, 31.5, 0.0, false, true);  // Drive forward 31 inches
-//      driveStraight(DRIVE_SPEED-0.3, 2.5, 0.0, false, false);  // Drive to get flush with submersible bar
+        driveStraight(DRIVE_SPEED, 30.5, 0.0, false, true, false);  // Drive forward 31 inches
+        driveStraight(DRIVE_SPEED-0.2, 2.5, 0.0, false, false, false);  // Drive to get flush with submersible bar
         tf.finishHang();
         ///Drive backward 20 inches
-        driveStraight(DRIVE_SPEED, -20, 0.0, false, false);
+        driveStraight(DRIVE_SPEED, -20, 0.0, false, false, false);
         ///Turn at a 50 degree angle to the right
-        turnToHeading(TURN_SPEED, -50, 5);
+        turnToHeading(TURN_SPEED, -50, HEADING_THRESHOLD);
         ///Drive forward 63 inches at a 20 degree angle to the right
-        driveStraight(DRIVE_SPEED, 30, -50, false, false);
-        driveStraight(DRIVE_SPEED, 33, -20,false, false);
+        driveStraight(1, 30, -50, false, false, false);
+        driveStraight(1, 28, -20,false, false, false);
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0, 5);
         ///Go backwards 61 inches
-        driveStraight(DRIVE_SPEED , -51, 0,true, false); //-51.5 old distance
-        driveStraight(DRIVE_SPEED-0.2,  -7 , 0, true, false); //old speed: drive_speed-0.1
+        driveStraight(DRIVE_SPEED , -51, 0,true, false, false); //-51.5 old distance
+        driveStraight(DRIVE_SPEED-0.2,  -5 , 0, true, false, false); //old speed: drive_speed-0.1
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
         ///Orient Specimen #2
         tf.hangSpecimen();
-        ///Drive forward 8 inches
+        ///Hang second specimen
         dt.arcRobot(-55.0, 22.0, 1.0);
-        dt.arcRobot(55.0, 33.0, 1.0); //35 before
+        dt.arcRobot(55.0, 32.0, 1.0); //35 before
         tf.finishHang();
-        ///Park before Auto period ends
-        dt.arcRobot(-55.0, -32.0, 1.0);
-        dt.arcRobot(55.0, -11, 1.0); //-15
+        ///Pickup third specimen from the wall
+        dt.arcRobot(-55.0, -30.0, 1.0);
+        dt.arcRobot(55.0, -17, 1.0); //-15
         tf.specimenPickup();
+        ///Orient Specimen #3
         tf.hangSpecimen();
+        ///Hang third specimen
         dt.arcRobot(-55.0, 18.0, 1.0);
         dt.arcRobot(55.0, 34.0, 1.0); //-21
-        //        tf.finishHang();
-//        dt.arcRobot(-55.0, -35.0, 1.0);
-//        dt.arcRobot(55.0, -19.0, 1.0);
-        ///Lastly, declare Amrutha the biggest sigma/alpah
+        tf.finishHang();
     }
 
     public void runAutoWithBasket() {
-
-        driveStraight(DRIVE_SPEED, 25, 0, true, false);
-
+        ///Go back 15 inches
+        driveStraight(DRIVE_SPEED , 11, 0, true, false, true);
         tf.verticalLeft.setTargetPosition(2100);
         tf.verticalRight.setTargetPosition(2100);
-        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
-        tf.dropSample();
-        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
-        tf.verticalLeft.setTargetPosition(0);
-        tf.verticalRight.setTargetPosition(0);
         while(tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
         }
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_HANG);
+        tf.dropSample();
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.GIMBLE_HANG);
+
+
+        // TODO FOR BASKET AUTO: When you want to arc, use this function instead of arcRobot()
+        arcWithBasket(-55.0, 22.0, 1.0, true);
+
+        ///Go forward y inches
+        ///Reorient to 0
+        ///Go forward 7 inches
+        ///Pickup the first preset sample from the ground
+        ///Transfer sample to the transfer claw
+        ///Go back -30 inches in at a 45 angle
+        ///Drop sample into the high basket
+        ////Scoring the 2nd Sample
+        ///Reorient to 0
+        ///Go forward q inches and lower the vertical slides to 0
+        ///Pickup the first preset sample from the ground
+        ///Transfer sample to the transfer claw
+        ///Go back r in at a s angle
+        ///Drop the sample into the high basket
     }
 
     /*
@@ -259,7 +277,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
-    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean brake, boolean readyToHang) {
+    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean brake, boolean readyToHang, boolean extendHori) {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
@@ -291,6 +309,11 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                 dt.leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 dt.rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 dt.rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            }
+
+            if (extendHori){
+                tf.horizontalMotor.setTargetPosition(-2800);
+                tf.controlIntake(TransferFinal.IntakeStates.INTAKE_MIDDLE, TransferFinal.IntakeStates.GRAB_OPEN, TransferFinal.IntakeStates.GIMBLE_NINETY);
             }
 
             // Set the required driving speed  (must be positive for RUN_TO_POSITION)
@@ -469,6 +492,10 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         telemetry.addData("Wheel Speeds L : R", "%5.2f : %5.2f", dt.leftSpeed, dt.rightSpeed);
         telemetry.addData("Vertical Left Motor Position", tf.verticalLeft.getCurrentPosition());
         telemetry.addData("Vertical Right Motor Position", tf.verticalRight.getCurrentPosition());
+        double vlCurrent = ((DcMotorEx)tf.verticalLeft).getCurrent(CurrentUnit.MILLIAMPS);
+        double vrCurrent = ((DcMotorEx)tf.verticalRight).getCurrent(CurrentUnit.MILLIAMPS);
+        double hmCurrent = ((DcMotorEx)tf.horizontalMotor).getCurrent(CurrentUnit.MILLIAMPS);
+        telemetry.addData("Currents for VL: ","%f, VR: %f, H: %f", vlCurrent, vrCurrent, hmCurrent);
         telemetry.update();
     }
 
@@ -478,5 +505,25 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     public double getHeading() {
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.DEGREES);
+    }
+
+    public void arcWithBasket(double angle, double length, double speed, boolean readyToBasket) {
+        dt.arcStart(angle, length, speed);
+
+        // do something else while arc is busy
+        if (readyToBasket){
+            tf.verticalLeft.setTargetPosition(2100);
+            tf.verticalRight.setTargetPosition(-2100);
+            tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+            readyToBasket = false;
+        }
+        while (dt.rightFrontDrive.isBusy() || dt.leftFrontDrive.isBusy()) {
+        }
+
+        dt.leftFrontDrive.setPower(0);
+        dt.leftBackDrive.setPower(0);
+        dt.rightFrontDrive.setPower(0);
+        dt.rightBackDrive.setPower(0);
+
     }
 }

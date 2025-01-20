@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 
 public class TransferFinal {
     //Defining Servos with Hardware Maps:
@@ -33,15 +30,15 @@ public class TransferFinal {
     public DcMotor horizontalMotor = null;
     //Enums:
     enum IntakeStates {
-            INTAKE_DOWN(0.12),
-            INTAKE_MIDDLE(0.35),
-            INTAKE_UP(0.95),
-            GRAB_CLOSE(0.56),
-            GRAB_OPEN(0),
-            GRAB_ADJUST(0.5),
-            GIMBLE_CENTER(0.55),
-            GIMBLE_NINETY(1);
-            private final double position;  // Field to store the position
+        INTAKE_DOWN(0.12),
+        INTAKE_MIDDLE(0.35),
+        INTAKE_UP(0.95),
+        GRAB_CLOSE(0.56),
+        GRAB_OPEN(0),
+        GRAB_ADJUST(0.5),
+        GIMBLE_CENTER(0.55),
+        GIMBLE_NINETY(1);
+        private final double position;  // Field to store the position
 
         IntakeStates(double value) {
             this.position = value;  // 'this.position' refers to the position field of the enum constant
@@ -50,8 +47,7 @@ public class TransferFinal {
         public double value() {
             return position;
         }
-
-        }
+    }
 
     enum TransferStates {
         TRANSFER_DOWN(0.7),   //1914
@@ -61,10 +57,10 @@ public class TransferFinal {
         TRANSFER_CLOSE(0.32),
         TRANSFER_OPEN(0.52),
         TRANSFER_ADJUST(0.35),
-        TRANSFER_CENTER(0.5),
+        TRANSFER_CENTER(0.30), //was 0.5, why?
         TRANSFER_NINETY(0.9),
-        GIMBLE_HANG(0.62),
-        GIMBLE_BASKET(0.64);
+        GIMBLE_HANG(0.5), // was 0.62, why?
+        GIMBLE_BASKET(0.54);
         private final double position;  // Field to store the position
 
         // Constructor to initialize the position field with the passed value
@@ -80,7 +76,7 @@ public class TransferFinal {
     }
 
 
-    public void servoInitializationAuto(HardwareMap hMap, double verticalPower) {
+    public void servoInitializationAuto(HardwareMap hMap, double verticalPower, boolean specimenAuto) {
         //Defining Servos with Hardware Maps:
         //Ascent Servos
         this.servostop2 = hMap.get(Servo.class, "cs1");
@@ -106,7 +102,12 @@ public class TransferFinal {
         this.rotateServo.setPosition(IntakeStates.INTAKE_UP.value());
         this.gimbleServo.setPosition(IntakeStates.GIMBLE_NINETY.value());
         this.grabServo.setPosition(IntakeStates.GRAB_OPEN.value());
-        this.TrotateServo.setPosition(0.68);
+        if (specimenAuto){
+            this.TrotateServo.setPosition(0.68);
+        }
+        else {
+            this.TrotateServo.setPosition(0.5);
+        }
         this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
         this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
 
@@ -132,7 +133,7 @@ public class TransferFinal {
 
         this.verticalLeft.setPower(verticalPower);
         this.verticalRight.setPower(verticalPower);
-        this.horizontalMotor.setPower(0.5);
+        this.horizontalMotor.setPower(0.8);
 
     }
     public void servoInitializationTeleop(HardwareMap hMap, double verticalPower) {
@@ -227,20 +228,20 @@ public class TransferFinal {
         //this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
         //2. Raise vertical while transfer rotates into down position
         //this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
-        this.verticalLeft.setTargetPosition(450);
-        this.verticalRight.setTargetPosition(-450);
+        this.verticalLeft.setTargetPosition(500);
+        this.verticalRight.setTargetPosition(-500);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_ADJUST, TransferStates.GIMBLE_HANG);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
-    }//transfer slayy
+    }
 
     public void finishHang() {
         this.verticalLeft.setPower(1);
         this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(900); ///move to 960 if vertical is slow or inconsistent
-        this.verticalRight.setTargetPosition(-900); ///move to -960 if vertical is slow or inconsistent
+        this.verticalLeft.setTargetPosition(900); //move to higher if vertical is slow or inconsistent
+        this.verticalRight.setTargetPosition(-900);
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
-        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
+//        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
         // //3. Let go of specimen
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_OPEN, TransferStates.GIMBLE_HANG);
         // //4. Retract vertical while fliiping transfer to up position
@@ -249,9 +250,8 @@ public class TransferFinal {
         this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
         this.verticalLeft.setTargetPosition(0);
         this.verticalRight.setTargetPosition(0);
-        do {this.verticalLeft.setTargetPosition(0);
-            this.verticalRight.setTargetPosition(0);}
-        while (this.verticalLeft.isBusy() || this.verticalRight.isBusy());
+        while (this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
+        }
         this.verticalLeft.setPower(0);
         this.verticalRight.setPower(0);
         showTelemetry();
@@ -317,7 +317,7 @@ public class TransferFinal {
     }
 
     public void dropSample() {
-        this.controlTransfer(TransferStates.TRANSFER_MIDDLE, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
+        this.controlTransfer(TransferStates.TRANSFER_MIDDLE, TransferStates.TRANSFER_OPEN, TransferStates.GIMBLE_BASKET);
     }
 
 
