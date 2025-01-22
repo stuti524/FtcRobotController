@@ -89,7 +89,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="SampleAuto", group="Autonomi")
+@Autonomous(name="SampleAuto", group="Autonomii")
 
 public class SampleAuto extends LinearOpMode {
 
@@ -117,8 +117,8 @@ public class SampleAuto extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.8;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.4;     // Max turn speed to limit turn rate.
+    static final double     DRIVE_SPEED             = 1;     // Max driving speed for better distance accuracy.
+    static final double     TURN_SPEED              = 1;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
@@ -136,7 +136,7 @@ public class SampleAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        ((DcMotorEx)tf.horizontalMotor).setTargetPositionTolerance(30);
+       // ((DcMotorEx)tf.horizontalMotor).setTargetPositionTolerance(30);
         /* The next two lines define Hub orientation.
          * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
          */
@@ -224,39 +224,50 @@ public class SampleAuto extends LinearOpMode {
     }
 
     public void runAutoWithBasket() {
-        ///Go back 15 inches
-//        driveStraight(DRIVE_SPEED , 11, 0, false);
-//        dt.arcRobot(-70.0, -37.0, 1.0);
+        tf.verticalLeft.setPower(1);
+        tf.verticalRight.setPower(1);
+        tf.horizontalMotor.setPower(1);
         arcWithBasket(-70, -38, 0.8, true);
         driveStraight(0.4 , -15.3, getHeading(), false, true);
-//        dt.(-5, 0.5);
-//        tf.verticalLeft.setTargetPosition(2100);
-//        tf.verticalRight.setTargetPosition(-2100);
-//        while(tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
-//        }
-//        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.dropSample();
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
-        tf.verticalLeft.setPower(0.3);
-        tf.verticalRight.setPower(0.3);
         tf.verticalLeft.setTargetPosition(0);
         tf.verticalRight.setTargetPosition(0);
-        tf.verticalLeft.setPower(0.8);
-        tf.verticalRight.setPower(0.8);
-        driveStraight(DRIVE_SPEED , 3.6, getHeading(), false, false);
-        turnToHeading(TURN_SPEED, 162.5, HEADING_THRESHOLD);
+        driveStraight(DRIVE_SPEED , 3.8, getHeading(), false, false);
+        turnToHeading(TURN_SPEED, 162, HEADING_THRESHOLD);
         pickUpPreset();
         tf.horizontalMotor.setTargetPosition(0);
-        sleep(500);
-        tf.sampleTransfer();
+        sleep(250);
+        tf.sampleTransfertoBasket();
         turnToHeading(TURN_SPEED, 135, HEADING_THRESHOLD);
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.verticalLeft.setTargetPosition(4095);
         tf.verticalRight.setTargetPosition(-4095);
-        sleep(1000);
-        driveStraight(DRIVE_SPEED, -3, getHeading(), false, true);
+        while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
+        }
+        driveStraight(DRIVE_SPEED, -3.2, getHeading(), false, true);
         tf.dropSample();
-
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.verticalLeft.setTargetPosition(0);
+        tf.verticalRight.setTargetPosition(0);
+        driveStraight(DRIVE_SPEED , 3.8, getHeading(), false, false);
+        turnToHeading(TURN_SPEED, 184.5, HEADING_THRESHOLD);
+        pickUpPreset();
+        tf.horizontalMotor.setTargetPosition(0);
+        sleep(150);
+        tf.sampleTransfertoBasket();
+        turnToHeading(TURN_SPEED, 135, HEADING_THRESHOLD);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+        tf.verticalLeft.setTargetPosition(4095);
+        tf.verticalRight.setTargetPosition(-4095);
+        while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
+        }
+        driveStraight(DRIVE_SPEED, -3.8, getHeading(), false, false);
+        tf.dropSample();
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.verticalLeft.setTargetPosition(0);
+        tf.verticalRight.setTargetPosition(0);
 
         //driveStraight(DRIVE_SPEED , -3.5, getHeading(), false, false);
 
@@ -559,8 +570,8 @@ public class SampleAuto extends LinearOpMode {
 
         // do something else while arc is busy
         if (readyToBasket){
-            tf.verticalLeft.setTargetPosition(2100);
-            tf.verticalRight.setTargetPosition(-2100);
+            tf.verticalLeft.setTargetPosition(4095);
+            tf.verticalRight.setTargetPosition(-4095);
             tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
             readyToBasket = false;
         }
