@@ -215,14 +215,14 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         tf.finishHang();
         ///Pickup third specimen from the wall
         dt.arcRobot(-55.0, -30.0, 1.0);
-        dt.arcRobot(55.0, -17, 1.0); //-15
-        tf.specimenPickup();
-        ///Orient Specimen #3
-        tf.hangSpecimen();
-        ///Hang third specimen
-        dt.arcRobot(-55.0, 18.0, 1.0);
-        dt.arcRobot(55.0, 34.0, 1.0); //-21
-        tf.finishHang();
+        dt.arcRobot(55.0, -14, 1.0); //-17 before
+//        tf.specimenPickup();
+//        ///Orient Specimen #3
+//        tf.hangSpecimen();
+//        ///Hang third specimen
+//        dt.arcRobot(-55.0, 18.0, 1.0);
+//        dt.arcRobot(55.0, 34.0, 1.0); //-21
+//        tf.finishHang();
     }
 
     public void runAutoWithBasket() {

@@ -234,36 +234,36 @@ public class SampleAuto extends LinearOpMode {
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
         tf.verticalLeft.setTargetPosition(0);
         tf.verticalRight.setTargetPosition(0);
-        driveStraight(DRIVE_SPEED , 3.8, getHeading(), false, false);
-        turnToHeading(TURN_SPEED, 162, HEADING_THRESHOLD);
+        driveStraight(DRIVE_SPEED , 3.7, getHeading(), false, false);
+        turnToHeading(TURN_SPEED, 162.5, HEADING_THRESHOLD);
         pickUpPreset();
         tf.horizontalMotor.setTargetPosition(0);
-        sleep(250);
-        tf.sampleTransfertoBasket();
+        sleep(150);
+        sampleTransfertoBasket();
         turnToHeading(TURN_SPEED, 135, HEADING_THRESHOLD);
-        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+        //tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.verticalLeft.setTargetPosition(4095);
         tf.verticalRight.setTargetPosition(-4095);
         while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
         }
-        driveStraight(DRIVE_SPEED, -3.2, getHeading(), false, true);
+        driveStraight(DRIVE_SPEED, -3.15, getHeading(), false, true);
         tf.dropSample();
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
         tf.verticalLeft.setTargetPosition(0);
         tf.verticalRight.setTargetPosition(0);
-        driveStraight(DRIVE_SPEED , 3.8, getHeading(), false, false);
-        turnToHeading(TURN_SPEED, 184.5, HEADING_THRESHOLD);
+        driveStraight(DRIVE_SPEED , 3.65, getHeading(), false, false);
+        turnToHeading(TURN_SPEED, 184, HEADING_THRESHOLD);
         pickUpPreset();
         tf.horizontalMotor.setTargetPosition(0);
         sleep(150);
-        tf.sampleTransfertoBasket();
+        sampleTransfertoBasket();
         turnToHeading(TURN_SPEED, 135, HEADING_THRESHOLD);
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.verticalLeft.setTargetPosition(4095);
         tf.verticalRight.setTargetPosition(-4095);
         while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
         }
-        driveStraight(DRIVE_SPEED, -3.8, getHeading(), false, false);
+        driveStraight(DRIVE_SPEED, -3.65, getHeading(), false, false);
         tf.dropSample();
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
         tf.verticalLeft.setTargetPosition(0);
@@ -413,6 +413,17 @@ public class SampleAuto extends LinearOpMode {
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_UP, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.TRANSFER_NINETY);
 //        this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_CENTER);
     }
+
+    public void sampleTransfertoBasket() {
+        tf.horizontalMotor.setTargetPosition(0);
+        sleep(150);
+        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_UP, TransferFinal.IntakeStates.GRAB_ADJUST, TransferFinal.IntakeStates.GIMBLE_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_DOWN, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_DOWN, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+    }
+
 
     /**
      *  Spin on the central axis to point in a new direction.
