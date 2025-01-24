@@ -213,8 +213,8 @@ public class TransferFinal {
         this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
         // 2. Grab the specimen
         this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_CENTER);
-        this.verticalLeft.setTargetPosition(300);
-        this.verticalRight.setTargetPosition(-300);
+        this.verticalLeft.setTargetPosition(585);
+        this.verticalRight.setTargetPosition(-585);
         sleep(50);
         // 3. Rotate the transfer back
         // controlTransfer(TransferRotateStates.TRANSFER_DOWN, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
@@ -228,8 +228,8 @@ public class TransferFinal {
         //this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
         //2. Raise vertical while transfer rotates into down position
         //this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
-        this.verticalLeft.setTargetPosition(500);
-        this.verticalRight.setTargetPosition(-500);
+        this.verticalLeft.setTargetPosition(975);
+        this.verticalRight.setTargetPosition(-975);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_ADJUST, TransferStates.GIMBLE_HANG);
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
     }
@@ -237,16 +237,16 @@ public class TransferFinal {
     public void finishHang() {
         this.verticalLeft.setPower(1);
         this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(900); //move to higher if vertical is slow or inconsistent
-        this.verticalRight.setTargetPosition(-900);
+        this.verticalLeft.setTargetPosition(1900);
+        this.verticalRight.setTargetPosition(-1900);
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
 //        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
         // //3. Let go of specimen
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_OPEN, TransferStates.GIMBLE_HANG);
         // //4. Retract vertical while fliiping transfer to up position
-        this.verticalLeft.setTargetPosition(500);
-        this.verticalRight.setTargetPosition(-500);
+        this.verticalLeft.setTargetPosition(975);
+        this.verticalRight.setTargetPosition(-975);
         this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
         this.verticalLeft.setTargetPosition(0);
         this.verticalRight.setTargetPosition(0);

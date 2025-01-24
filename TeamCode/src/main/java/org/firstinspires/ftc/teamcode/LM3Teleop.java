@@ -13,9 +13,12 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 @TeleOp(name = "LM3Teleop")
 public class LM3Teleop extends LinearOpMode {
+    volatile double driveSpeedFactor = 0.67;
     TransferFinal tf = new TransferFinal();
     enum StateE {
         SAMPLE_STATE,
@@ -192,10 +195,10 @@ public class LM3Teleop extends LinearOpMode {
         rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -271,6 +274,8 @@ public class LM3Teleop extends LinearOpMode {
         });
         driveThread.start();
 
+        telemetry.setMsTransmissionInterval(0);
+
         while (opModeIsActive()) {
             if (state != StateE.SAMPLE_STATE) {
                 rotateServo.setPosition(1);//rotating intake fully upright
@@ -334,11 +339,15 @@ public class LM3Teleop extends LinearOpMode {
                     //GPLB = gamepad1.left_bumper;
                 }
             }
-
+            double rf = ((DcMotorEx)rightFrontDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double rb = ((DcMotorEx)rightBackDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double lf = ((DcMotorEx)leftFrontDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double lb = ((DcMotorEx)leftBackDrive).getCurrent(CurrentUnit.MILLIAMPS);
             double vl1 = ((DcMotorEx)verticalLeft1).getCurrent(CurrentUnit.MILLIAMPS);
             double vr1 = ((DcMotorEx)verticalRight1).getCurrent(CurrentUnit.MILLIAMPS);
             double hm1 = ((DcMotorEx)horizontalMotor1).getCurrent(CurrentUnit.MILLIAMPS);
-            telemetry.addLine(String.format("%s, %s, %s", vl1, vr1, hm1));
+            telemetry.addLine(String.format("VL: %.1f\nVR: %.1f\nH: %.1f", vl1/1000, vr1/1000, hm1/1000));
+            telemetry.addLine(String.format("Rf: %.1f, Rb: %.1f, Lf: %.1f, Lb: %.1f", rf/1000, rb/1000, lf/1000, lb/1000));
             telemetry.update();
         }
     }
@@ -353,8 +362,8 @@ public class LM3Teleop extends LinearOpMode {
         if (hangE == HangE.ABOVE_RUNG) {
             verticalLeft1.setPower(1);
             verticalRight1.setPower(1);
-            verticalLeft1.setTargetPosition(1500);
-            verticalRight1.setTargetPosition(-1500);
+            verticalLeft1.setTargetPosition(2925);
+            verticalRight1.setTargetPosition(-2925);
             TrotateServo.setPosition(0.6);
             TgimbleServo.setPosition(1);
             sleep(200);
@@ -399,10 +408,10 @@ public class LM3Teleop extends LinearOpMode {
     }
 
     public void drive() {
-        double driveSpeed = 1.5;
+        driveSpeedFactor = 0.67;
         float leftTrigger = gamepad1.left_trigger;
         if (leftTrigger > 0) {
-            driveSpeed = 8;
+            driveSpeedFactor = 0.25;
         }
         //Drive
         // Run wheels in POV mode (note: The joystick goes negative when pushed forward, so negate it)
@@ -413,8 +422,8 @@ public class LM3Teleop extends LinearOpMode {
 
         // Combine drive and turn for blended motion.
         //TEMP SOL - DIV by 2 to slow down the DT
-        left = (drive + turn) / driveSpeed;
-        right = (drive - turn) / driveSpeed;
+        left = (drive + turn) * driveSpeedFactor;
+        right = (drive - turn) * driveSpeedFactor;
 
         // Normalize the values so neither exceed +/- 1.0
         max = Math.max(Math.abs(left), Math.abs(right));
@@ -605,7 +614,7 @@ public class LM3Teleop extends LinearOpMode {
             TgrabServo.setPosition(0.52);//Open Claw
         }
         if (grab == TransferGrabStates.TRANSFER_ADJUST){
-            TgrabServo.setPosition(0.35);//Open Claw
+            TgrabServo.setPosition(0.40);//Open Claw
         }
         sleep(150);
 
@@ -736,8 +745,8 @@ public class LM3Teleop extends LinearOpMode {
         if (vertbaske == VertE.ABOVE_BASK) {
             verticalLeft1.setPower(1);
             verticalRight1.setPower(1);
-            verticalLeft1.setTargetPosition(2100);
-            verticalRight1.setTargetPosition(-2100);
+            verticalLeft1.setTargetPosition(4095);
+            verticalRight1.setTargetPosition(-4095);
 //            sleep(400);
             TrotateServoe = TransferRotateStates.TRANSFER_MIDDLE;
             TrotateServo.setPosition(0.25);//rotate
@@ -862,8 +871,8 @@ public class LM3Teleop extends LinearOpMode {
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
         // 2. Grab the specimen
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
-        verticalLeft1.setTargetPosition(300);
-        verticalRight1.setTargetPosition(-300);
+        verticalLeft1.setTargetPosition(585);
+        verticalRight1.setTargetPosition(-585);
         vertbaske = VertE.NULL_BASK;
         sleep(400);
         TgrabServoe = TransferGrabStates.TRANSFER_CLOSE;
@@ -881,8 +890,8 @@ public class LM3Teleop extends LinearOpMode {
         //1. Intialize transfer in the up position
         //controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
         //2. Raise vertical while transfer rotates into down position
-        this.verticalLeft1.setTargetPosition(450);
-        this.verticalRight1.setTargetPosition(-450);
+        this.verticalLeft1.setTargetPosition(877);
+        this.verticalRight1.setTargetPosition(-877);
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_ADJUST, TransferGimbleStates.GIMBLE_HANG);
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
@@ -893,10 +902,12 @@ public class LM3Teleop extends LinearOpMode {
     }
 
     public void finishHang() {
+
+
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
-        verticalLeft1.setTargetPosition(900); ///move to 960 if vertical is slow or inconsistent
-        verticalRight1.setTargetPosition(-900); ///move to -960 if vertical is slow or inconsistent
+        verticalLeft1.setTargetPosition(1755); ///move to 960 if vertical is slow or inconsistent
+        verticalRight1.setTargetPosition(-1755); ///move to -960 if vertical is slow or inconsistent
         while (verticalRight1.isBusy()||verticalLeft1.isBusy()){
         }
         //sleep(400);
@@ -904,8 +915,8 @@ public class LM3Teleop extends LinearOpMode {
         //controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);
         // //4. Retract vertical while flipping transfer to up position
-        verticalLeft1.setTargetPosition(500);
-        verticalRight1.setTargetPosition(-500);
+        verticalLeft1.setTargetPosition(975);
+        verticalRight1.setTargetPosition(-975);
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
         sleep(400);
        do {verticalLeft1.setTargetPosition(0);
