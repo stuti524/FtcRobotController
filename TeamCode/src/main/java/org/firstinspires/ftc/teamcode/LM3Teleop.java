@@ -693,8 +693,8 @@ public class LM3Teleop extends LinearOpMode {
     public void finishHang() {
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
-        verticalLeft1.setTargetPosition(1900); ///move to 960 if vertical is slow or inconsistent
-        verticalRight1.setTargetPosition(-1900); ///move to -960 if vertical is slow or inconsistent
+        verticalLeft1.setTargetPosition(2200); ///move to 960 if vertical is slow or inconsistent//1900
+        verticalRight1.setTargetPosition(-2200); ///move to -960 if vertical is slow or inconsistent
         while (verticalRight1.isBusy() || verticalLeft1.isBusy()) {
         }
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);

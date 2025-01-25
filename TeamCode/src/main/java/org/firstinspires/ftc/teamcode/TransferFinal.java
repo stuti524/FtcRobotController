@@ -269,8 +269,8 @@ public class TransferFinal {
     public void finishHang() {
         this.verticalLeft.setPower(1);
         this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(1900);
-        this.verticalRight.setTargetPosition(-1900);
+        this.verticalLeft.setTargetPosition(2200);
+        this.verticalRight.setTargetPosition(-2200);
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
 //        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
