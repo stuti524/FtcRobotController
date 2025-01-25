@@ -1,5 +1,5 @@
 /* Copyright (c) 2022 FIRST. All rights reserved.
- *
+
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
  * the following conditions are met:
@@ -33,9 +33,11 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -87,9 +89,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
  *  Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="AutoGyroDefault", group="Robot")
+@Autonomous(name="SampleAuto", group="Autonomii")
 
-public class AutoGyroREdgeCenterLine extends LinearOpMode {
+public class SampleAuto extends LinearOpMode {
 
     /* Declare OpMode members. */
     private IMU             imu         = null;   // Control/Expansion Hub IMU
@@ -115,8 +117,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     // These constants define the desired driving/control characteristics
     // They can/should be tweaked to suit the specific robot drive train.
-    static final double     DRIVE_SPEED             = 0.8;     // Max driving speed for better distance accuracy.
-    static final double     TURN_SPEED              = 0.4;     // Max turn speed to limit turn rate.
+    static final double     DRIVE_SPEED             = 1;     // Max driving speed for better distance accuracy.
+    static final double     TURN_SPEED              = 1;     // Max turn speed to limit turn rate.
     static final double     HEADING_THRESHOLD       = 1.0 ;    // How close must the heading get to the target before moving to next step.
     // Requiring more accuracy (a smaller number) will often make the turn take longer to get into the final position.
     // Define the Proportional control coefficient (or GAIN) for "heading control".
@@ -134,7 +136,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
+       // ((DcMotorEx)tf.horizontalMotor).setTargetPositionTolerance(30);
         /* The next two lines define Hub orientation.
          * The Default Orientation (shown) is when a hub is mounted horizontally with the printed logo pointing UP and the USB port pointing FORWARD.
          */
@@ -149,7 +151,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
         //Initialize Drivetrain Motors and Servos
         dt.initialize(hardwareMap);
-        tf.servoInitializationAuto(hardwareMap, 0.8, true);
+        tf.servoInitializationAuto(hardwareMap, 0.8, false);
 
         // Wait for the game to start (Display Gyro value and Basket and Specimen Auto while waiting)
         while (opModeInInit()) {
@@ -174,10 +176,10 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
 
         /// Run one of the following 2 Auto paths: Only Specimen scoring OR Sample scoring in basket
-        if (specimenAuto)
-            runAutoWithSpecimen(); //Get specimen and hang them
-        else
-            runAutoWithBasket(); //TODO: Auto to get "Yellow" samples to score in high basket
+//        if (specimenAuto)
+//            runAutoWithSpecimen(); //Get specimen and hang them
+//        else
+        runAutoWithBasket(); //TODO: Auto to get "Yellow" samples to score in high basket
 
         /// End Game Path with telemetry
         telemetry.addData("Path", "Complete");
@@ -186,21 +188,21 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     }
 
     public void runAutoWithSpecimen () {
-        driveStraight(DRIVE_SPEED, 30.5, 0.0, true);  // Drive forward 31 inches
-        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false);  // Drive to get flush with submersible bar
+        driveStraight(DRIVE_SPEED, 30.5, 0.0, true, false);  // Drive forward 31 inches
+        driveStraight(DRIVE_SPEED/2, 2.5, 0.0, false, false);  // Drive to get flush with submersible bar
         tf.finishHang();
         ///Drive backward 20 inches
-        driveStraight(DRIVE_SPEED, -20, 0.0, false);
+        driveStraight(DRIVE_SPEED, -20, 0.0, false, false);
         ///Turn at a 50 degree angle to the right
         turnToHeading(TURN_SPEED, -50, 5);
         ///Drive forward 63 inches at a 20 degree angle to the right
-        driveStraight(DRIVE_SPEED, 30, -50, false);
-        driveStraight(DRIVE_SPEED, 33, -20, false);
+        driveStraight(DRIVE_SPEED, 30, -50, false, false);
+        driveStraight(DRIVE_SPEED, 33, -20, false, false);
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
         ///Go backwards 61 inches
-        driveStraight(DRIVE_SPEED , -51.5, 0, false);
-        driveStraight(DRIVE_SPEED-0.2, -7.25, 0, false);
+        driveStraight(DRIVE_SPEED , -51.5, 0, false, false);
+        driveStraight(DRIVE_SPEED-0.2, -7.25, 0, false, false);
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
         ///Orient Specimen
@@ -208,7 +210,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         ///Drive forward 8 inches
         dt.arcRobot(-55.0, 22.0, 1.0);
         dt.arcRobot(55.0, 35.0, 1.0);
-        driveStraight(DRIVE_SPEED-0.2, 2, 0, false);
+        driveStraight(DRIVE_SPEED-0.2, 2, 0, false, false);
         tf.finishHang();
         ///Park before Auto period ends
         dt.arcRobot(-55.0, -35.0, 1.0);
@@ -222,12 +224,62 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     }
 
     public void runAutoWithBasket() {
-        ///Go back 15 inches
-        driveStraight(DRIVE_SPEED , 28, 0, false);
-        tf.verticalLeft.setTargetPosition(2100);
-        tf.verticalRight.setTargetPosition(2100);
-        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_HANG);
+        tf.verticalLeft.setPower(1);
+        tf.verticalRight.setPower(1);
+        tf.horizontalMotor.setPower(1);
+        arcWithBasket(-70, -38, 0.8, true);
+        driveStraight(0.4 , -15.5, getHeading(), false, true);
+        //tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.dropSample();
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.verticalLeft.setTargetPosition(0);
+        tf.verticalRight.setTargetPosition(0);
+        driveStraight(DRIVE_SPEED , 3.2, getHeading(), false, false);//3.4
+        turnToHeading(TURN_SPEED, 162.5, HEADING_THRESHOLD);
+        pickUpPreset();
+        tf.horizontalMotor.setTargetPosition(0);
+        sleep(150);
+        sampleTransfertoBasket();
+        turnToHeading(TURN_SPEED, 135, HEADING_THRESHOLD);
+        //tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+        tf.verticalLeft.setTargetPosition(4095);
+        tf.verticalRight.setTargetPosition(-4095);
+        while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
+        }
+        driveStraight(DRIVE_SPEED, -3.4, getHeading(), false, true);
+        tf.dropSample();
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.verticalLeft.setTargetPosition(0);
+        tf.verticalRight.setTargetPosition(0);
+        driveStraight(DRIVE_SPEED , 3.4, getHeading(), false, false);//3.55
+        turnToHeading(TURN_SPEED, 184, HEADING_THRESHOLD);
+        pickUpPreset();
+        tf.horizontalMotor.setTargetPosition(0);
+        sleep(150);
+        sampleTransfertoBasket();
+        turnToHeading(TURN_SPEED, 135, HEADING_THRESHOLD);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+        tf.verticalLeft.setTargetPosition(4095);
+        tf.verticalRight.setTargetPosition(-4095);
+        while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
+        }
+        driveStraight(DRIVE_SPEED, -3.75, getHeading(), false, false);//-3.65
+        tf.dropSample();
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.verticalLeft.setTargetPosition(0);
+        tf.verticalRight.setTargetPosition(0);
+
+        //driveStraight(DRIVE_SPEED , -3.5, getHeading(), false, false);
+
+
+
+        //NEXT CODE IS PURELY EXPIREMENTAL
+//        turnToHeading(0.5, 50, 4);
+//        pickUpPreset();
+//        sampleTransfer();
+
+
+
         ///Go forward y inches
         ///Reorient to 0
         ///Go forward 7 inches
@@ -265,7 +317,8 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from the current robotHeading.
      */
-    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean readyToHang) {
+
+    public void driveStraight(double maxDriveSpeed, double distance, double heading, boolean readyToHang, boolean extendHori) {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
@@ -311,6 +364,12 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
                     tf.hangSpecimen();
                     readyToHang = false;
                 }
+                if (extendHori){
+                    tf.horizontalMotor.setTargetPosition(-2800);
+                    tf.controlIntake(TransferFinal.IntakeStates.INTAKE_MIDDLE, TransferFinal.IntakeStates.GRAB_OPEN, TransferFinal.IntakeStates.GIMBLE_NINETY);
+                    extendHori = false;
+                }
+
 
                 // Apply the turning correction to the current driving speed.
                 dt.moveRobot(dt.driveSpeed, dt.turnSpeed);
@@ -327,6 +386,44 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
             dt.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
+    public void sampleTransfer() {
+        // 1. Position the intake claw right above the sample
+        // controlIntake(IntakeRotateStates.INTAKE_MIDDLE, IntakeGrabStates.GRAB_OPEN, IntakeGimbleStates.GIMBLE_NINETY);
+        //sleep(250);
+        // // 2. Pickup the sample with the intake claw
+        // controlIntake(IntakeRotateStates.INTAKE_DOWN, IntakeGrabStates.GRAB_CLOSE, IntakeGimbleStates.GIMBLE_NINETY);
+        //sleep(250);
+        // 3. Position the rotate servo to the correct position
+//
+//        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_UP, TransferFinal.IntakeStates.GRAB_CLOSE, TransferFinal.IntakeStates.GIMBLE_NINETY);
+        // sleep(250);
+        tf.horizontalMotor.setTargetPosition(0);
+        sleep(300);
+        // 4. Loose power to position the sample correctly in the claw
+        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_UP, TransferFinal.IntakeStates.GRAB_ADJUST, TransferFinal.IntakeStates.GIMBLE_NINETY);
+        //sleep(250);
+        // 5. Bring the transfer directly over the sample
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_UP, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        //sleep(500);
+        // 6. Grab the sample with the transfer claw
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_DOWN, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_DOWN, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.TRANSFER_NINETY);
+        //sleep(250);
+        // 7. Rotate the transfer while holding the sample
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_UP, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.TRANSFER_NINETY);
+//        this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_CLOSE, TransferStates.TRANSFER_CENTER);
+    }
+
+    public void sampleTransfertoBasket() {
+        tf.horizontalMotor.setTargetPosition(0);
+        sleep(150);
+        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_UP, TransferFinal.IntakeStates.GRAB_ADJUST, TransferFinal.IntakeStates.GIMBLE_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_DOWN, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_DOWN, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.TRANSFER_NINETY);
+        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+    }
+
 
     /**
      *  Spin on the central axis to point in a new direction.
@@ -342,7 +439,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
      *              0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *              If a relative angle is required, add/subtract from current heading.
      */
-    public void turnToHeading(double maxTurnSpeed, double heading, double headingTolerance) {
+    public void  turnToHeading(double maxTurnSpeed, double heading, double headingTolerance) {
 
         // Run getSteeringCorrection() once to pre-calculate the current error
         getSteeringCorrection(heading, P_DRIVE_GAIN);
@@ -379,6 +476,12 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
 
         // Stop all motion;
         dt.moveRobot(0, 0);
+    }
+    public void pickUpPreset(){
+
+        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_DOWN, TransferFinal.IntakeStates.GRAB_OPEN, TransferFinal.IntakeStates.GIMBLE_NINETY);
+        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_DOWN, TransferFinal.IntakeStates.GRAB_CLOSE, TransferFinal.IntakeStates.GIMBLE_NINETY);
+        tf.controlIntake(TransferFinal.IntakeStates.INTAKE_UP, TransferFinal.IntakeStates.GRAB_CLOSE, TransferFinal.IntakeStates.GIMBLE_NINETY);
     }
 
     /**
@@ -471,5 +574,25 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     public double getHeading() {
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.DEGREES);
+    }
+
+    public void arcWithBasket(double angle, double length, double speed, boolean readyToBasket) {
+        dt.arcStart(angle, length, speed);
+
+        // do something else while arc is busy
+        if (readyToBasket){
+            tf.verticalLeft.setTargetPosition(4095);
+            tf.verticalRight.setTargetPosition(-4095);
+            tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+            readyToBasket = false;
+        }
+        while (dt.rightFrontDrive.isBusy() || dt.leftFrontDrive.isBusy()) {
+        }
+
+        dt.leftFrontDrive.setPower(0);
+        dt.leftBackDrive.setPower(0);
+        dt.rightFrontDrive.setPower(0);
+        dt.rightBackDrive.setPower(0);
+
     }
 }
