@@ -12,22 +12,26 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 public class LM3Teleop extends LinearOpMode {
     volatile double driveSpeedFactor = 0.67;
     TransferFinal tf = new TransferFinal();
+
     enum StateE {
         SAMPLE_STATE,
         CHAMBER_STATE,
         WALL_STATE,
         ASCENT_STATE
     }
+
     enum VertE {
         ABOVE_BASK,
         ZERO_BASK,
         NULL_BASK
 
     }
+
     enum HortE {
         HORI_EXTEND,
         HORI_RETRACT
     }
+
     StateE state = StateE.CHAMBER_STATE;
 
     public DcMotor leftFrontDrive = null;
@@ -50,6 +54,7 @@ public class LM3Teleop extends LinearOpMode {
         INTAKE_MIDDLE,
         INTAKE_UP
     }
+
     enum IntakeGrabStates {
         GRAB_CLOSE,
         GRAB_OPEN,
@@ -60,23 +65,27 @@ public class LM3Teleop extends LinearOpMode {
         GIMBLE_CENTER,
         GIMBLE_NINETY
     }
+
     enum TransferRotateStates {
         TRANSFER_DOWN,
         TRANSFER_MIDDLE,
         TRANSFER_UP,
         TRANSFER_HANG
     }
+
     enum TransferGrabStates {
         TRANSFER_CLOSE,
         TRANSFER_OPEN,
         TRANSFER_ADJUST
     }
+
     enum TransferGimbleStates {
         TRANSFER_CENTER,
         TRANSFER_NINETY,
         GIMBLE_HANG,
         GIMBLE_BASKET
     }
+
     VertE vertbaske = VertE.ZERO_BASK;
 
     HortE hortE = HortE.HORI_RETRACT;
@@ -86,6 +95,7 @@ public class LM3Teleop extends LinearOpMode {
         ON_RUNG,
         ZERO_RUNG,
     }
+
     HangE hangE = HangE.ZERO_RUNG;
     Servo servostop1;
     Servo servostop2;
@@ -99,7 +109,6 @@ public class LM3Teleop extends LinearOpMode {
     Servo TrotateServo;
     Servo TgrabServo;
     Servo TgimbleServo;
-
     DigitalChannel digitalHori;
     DigitalChannel digitalVert;
 
@@ -115,6 +124,7 @@ public class LM3Teleop extends LinearOpMode {
     boolean leftBumper = false;
     boolean dpadUp = false;
     boolean upArrow = false;
+    final boolean PRESSED = false;
 
     @Override
 
@@ -160,7 +170,7 @@ public class LM3Teleop extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        tf.servoInitializationTeleop(hardwareMap,1);
+        tf.servoInitializationTeleop(hardwareMap, 1);
 
         horizontalMotor1 = hardwareMap.get(DcMotor.class, "em0");
         horizontalMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -180,26 +190,31 @@ public class LM3Teleop extends LinearOpMode {
         verticalLeft1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         verticalRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        ((DcMotorEx)verticalLeft1).setTargetPositionTolerance(10);
-        ((DcMotorEx)verticalRight1).setTargetPositionTolerance(10);
-        ((DcMotorEx)horizontalMotor1).setTargetPositionTolerance(30);
+        ((DcMotorEx) verticalLeft1).setTargetPositionTolerance(10);
+        ((DcMotorEx) verticalRight1).setTargetPositionTolerance(10);
+        ((DcMotorEx) horizontalMotor1).setTargetPositionTolerance(30);
 
         rotateServo.setPosition(0.95);//rotating intake fully upright
         grabServo.setPosition(1);
         gimbleServo.setPosition(0.275);
 
-        while (digitalHori.getState() == true && horizontalMotor1.getTargetPosition() == 0) {
+        while (digitalHori.getState() != PRESSED) {
             horizontalMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             horizontalMotor1.setPower(0.4);
 
         }
-        while (digitalVert.getState() == true && verticalLeft1.getTargetPosition() == 0 && verticalRight1.getTargetPosition() == 0) {
+
+        while (digitalVert.getState() != PRESSED) {
             verticalRight1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             verticalLeft1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             verticalRight1.setPower(0.4);
             verticalLeft1.setPower(-0.4);
 
         }
+
+        resetVerticalHorizontal();
+
+
         waitForStart();
 
         rotateServo.setPosition(0.95);//rotating intake fully upright
@@ -215,12 +230,12 @@ public class LM3Teleop extends LinearOpMode {
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
 
-        while(opModeInInit()) {
+        while (opModeInInit()) {
         }
 
         Thread driveThread = new Thread(()
                 -> {
-            while(opModeIsActive()) {
+            while (opModeIsActive()) {
                 drive();
             }
         });
@@ -237,7 +252,7 @@ public class LM3Teleop extends LinearOpMode {
 
             if (state != StateE.ASCENT_STATE) {
                 servostop1.setPosition(1.0);
-                servostop2.setPosition(0.12);
+                servostop2.setPosition(0.09);
             }
 
             if (gamepad1.x == true) {
@@ -264,19 +279,23 @@ public class LM3Teleop extends LinearOpMode {
                 }
             }
 
-            double rf = ((DcMotorEx)rightFrontDrive).getCurrent(CurrentUnit.MILLIAMPS);
-            double rb = ((DcMotorEx)rightBackDrive).getCurrent(CurrentUnit.MILLIAMPS);
-            double lf = ((DcMotorEx)leftFrontDrive).getCurrent(CurrentUnit.MILLIAMPS);
-            double lb = ((DcMotorEx)leftBackDrive).getCurrent(CurrentUnit.MILLIAMPS);
-            double vl1 = ((DcMotorEx)verticalLeft1).getCurrent(CurrentUnit.MILLIAMPS);
-            double vr1 = ((DcMotorEx)verticalRight1).getCurrent(CurrentUnit.MILLIAMPS);
-            double hm1 = ((DcMotorEx)horizontalMotor1).getCurrent(CurrentUnit.MILLIAMPS);
-            telemetry.addLine(String.format("VL: %.1f\nVR: %.1f\nH: %.1f", vl1/1000, vr1/1000, hm1/1000));
-            telemetry.addLine(String.format("Rf: %.1f, Rb: %.1f, Lf: %.1f, Lb: %.1f", rf/1000, rb/1000, lf/1000, lb/1000));
+            double rf = ((DcMotorEx) rightFrontDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double rb = ((DcMotorEx) rightBackDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double lf = ((DcMotorEx) leftFrontDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double lb = ((DcMotorEx) leftBackDrive).getCurrent(CurrentUnit.MILLIAMPS);
+            double vl1 = ((DcMotorEx) verticalLeft1).getCurrent(CurrentUnit.MILLIAMPS);
+            double vr1 = ((DcMotorEx) verticalRight1).getCurrent(CurrentUnit.MILLIAMPS);
+            double hm1 = ((DcMotorEx) horizontalMotor1).getCurrent(CurrentUnit.MILLIAMPS);
+            telemetry.addLine(String.format("VL: %.1f\nVR: %.1f\nH: %.1f", vl1 / 1000, vr1 / 1000, hm1 / 1000));
+            telemetry.addLine(String.format("Rf: %.1f, Rb: %.1f, Lf: %.1f, Lb: %.1f", rf / 1000, rb / 1000, lf / 1000, lb / 1000));
             telemetry.update();
         }
     }
+
     public void ascent() {
+
+        resetVerticalHorizontal();
+
         boolean GPRB = gamepad1.right_bumper;
         if (GPRB && hangE == HangE.ZERO_RUNG) {
             hangE = HangE.ABOVE_RUNG;
@@ -287,15 +306,16 @@ public class LM3Teleop extends LinearOpMode {
             verticalRight1.setPower(1);
             verticalLeft1.setTargetPosition(2925);
             verticalRight1.setTargetPosition(-2925);
-            TrotateServo.setPosition(0.6);
+            TrotateServo.setPosition(0.55);
             TgimbleServo.setPosition(1);
             sleep(200);
             //THESE SERVO POS WORK
             servostop1.setPosition(0.10);
-            servostop2.setPosition(0.78);
+            servostop2.setPosition(0.60);
         }
 
     }
+
     public void ascentFinal() {
         boolean GPRB = gamepad1.right_bumper;
         horizontalMotor1.setPower(0);
@@ -358,30 +378,8 @@ public class LM3Teleop extends LinearOpMode {
     }
 
     public void sample() {
-        final boolean PRESSED = false;
 
-        if (digitalHori.getState() == PRESSED) {
-                horizontalMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                horizontalMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                horizontalMotor1.setTargetPosition(0);
-                horizontalMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                horizontalMotor1.setPower(-1);
-            telemetry.addData("HORIZONTAL", "RETRACTED");
-            telemetry.update();
-            }
-
-        if (digitalVert.getState() == PRESSED) {
-            verticalLeft1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            verticalLeft1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            verticalLeft1.setTargetPosition(0);
-            verticalLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            verticalLeft1.setPower(-1);
-            verticalRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            verticalRight1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            verticalRight1.setTargetPosition(0);
-            verticalRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            verticalRight1.setPower(1);
-        }
+        resetVerticalHorizontal();
 
         if (gamepad1.dpad_left) {
             hortE = HortE.HORI_RETRACT;
@@ -396,8 +394,7 @@ public class LM3Teleop extends LinearOpMode {
 
         if (rightArrow == false && gamepad1.dpad_right == true && hortE == HortE.HORI_RETRACT) {
             hortE = HortE.HORI_EXTEND;
-        }
-        else if (rightArrow == false && gamepad1.dpad_right == true && hortE == HortE.HORI_EXTEND) {
+        } else if (rightArrow == false && gamepad1.dpad_right == true && hortE == HortE.HORI_EXTEND) {
             hortE = HortE.HORI_RETRACT;
             ;
         }
@@ -483,8 +480,8 @@ public class LM3Teleop extends LinearOpMode {
         dpadUp = gamepad1.dpad_up;
 
         // hardware calls
-        if (gimbleServoe == IntakeGimbleStates.GIMBLE_CENTER){
-            gimbleServo.setPosition(0.55);
+        if (gimbleServoe == IntakeGimbleStates.GIMBLE_CENTER) {
+            gimbleServo.setPosition(0.625);
         }
         if (gimbleServoe == IntakeGimbleStates.GIMBLE_NINETY) {
             gimbleServo.setPosition(1.0);
@@ -523,12 +520,13 @@ public class LM3Teleop extends LinearOpMode {
 
         //Intake Gimble Servo:
         if (gimble == IntakeGimbleStates.GIMBLE_CENTER)
-            gimbleServo.setPosition(0.55);
+            gimbleServo.setPosition(0.625);
 
         if (gimble == IntakeGimbleStates.GIMBLE_NINETY)
             gimbleServo.setPosition(1);
         sleep(150);
     }
+
     public void controlTransfer(TransferRotateStates rotate, TransferGrabStates grab, TransferGimbleStates gimble) {
         // Hardware Calls for Transfer Servos:
         // Transfer Rotate Servo:
@@ -548,56 +546,35 @@ public class LM3Teleop extends LinearOpMode {
             sleep(100);
             grabServo.setPosition(0);
         }
-        if (grab == TransferGrabStates.TRANSFER_OPEN){
+        if (grab == TransferGrabStates.TRANSFER_OPEN) {
             TgrabServo.setPosition(0.52);//Open Claw
         }
-        if (grab == TransferGrabStates.TRANSFER_ADJUST){
+        if (grab == TransferGrabStates.TRANSFER_ADJUST) {
             TgrabServo.setPosition(0.40);//Open Claw
         }
         sleep(150);
 
         //Transfer Gimble Servo:
-        if (gimble == TransferGimbleStates.TRANSFER_CENTER){
+        if (gimble == TransferGimbleStates.TRANSFER_CENTER) {
             TgimbleServo.setPosition(0.30);
         }
-        if (gimble == TransferGimbleStates.TRANSFER_NINETY){
+        if (gimble == TransferGimbleStates.TRANSFER_NINETY) {
             TgimbleServo.setPosition(0.9);
         }
-        if (gimble == TransferGimbleStates.GIMBLE_HANG){
+        if (gimble == TransferGimbleStates.GIMBLE_HANG) {
             TgimbleServo.setPosition(0.5);
         }
         sleep(150);
 
     }
+
     public void chamber() {
 
-        if (digitalHori.getState() == false) {
-            horizontalMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            horizontalMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            horizontalMotor1.setTargetPosition(0);
-            horizontalMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            horizontalMotor1.setPower(-1);
-            telemetry.addData("HORIZONTAL", "RETRACTED");
-            telemetry.update();
-        }
-
-        if (digitalVert.getState() == false) {
-            verticalLeft1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            verticalRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            verticalLeft1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            verticalRight1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            verticalLeft1.setTargetPosition(0);
-            verticalRight1.setTargetPosition(0);
-            verticalLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            verticalRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            verticalLeft1.setPower(-1);
-            verticalRight1.setPower(1);
-        }
+        resetVerticalHorizontal();
 
         if ((vertbaske == VertE.ZERO_BASK || vertbaske == VertE.NULL_BASK) && gamepad1.dpad_up == true && upArrow == false) {
             vertbaske = VertE.ABOVE_BASK;
-        }
-        else if (vertbaske == VertE.ABOVE_BASK && gamepad1.dpad_up == true && upArrow == false) {
+        } else if (vertbaske == VertE.ABOVE_BASK && gamepad1.dpad_up == true && upArrow == false) {
             vertbaske = VertE.ZERO_BASK;
         }
         upArrow = gamepad1.dpad_up;
@@ -617,8 +594,10 @@ public class LM3Teleop extends LinearOpMode {
         if (vertbaske == VertE.ZERO_BASK) {
             verticalLeft1.setPower(1);
             verticalRight1.setPower(1);
-            do {verticalLeft1.setTargetPosition(0);
-                verticalRight1.setTargetPosition(0);}
+            do {
+                verticalLeft1.setTargetPosition(0);
+                verticalRight1.setTargetPosition(0);
+            }
             while (verticalLeft1.isBusy() || verticalRight1.isBusy());
             verticalLeft1.setPower(0);
             verticalRight1.setPower(0);
@@ -650,8 +629,7 @@ public class LM3Teleop extends LinearOpMode {
         //Transfer Grab Servo:
         if (TgrabServoe == TransferGrabStates.TRANSFER_OPEN && gamepad1.left_bumper == true && leftBumper == false) {
             TgrabServoe = TransferGrabStates.TRANSFER_CLOSE;
-        }
-        else if (TgrabServoe == TransferGrabStates.TRANSFER_CLOSE && gamepad1.left_bumper == true && leftBumper == false) {
+        } else if (TgrabServoe == TransferGrabStates.TRANSFER_CLOSE && gamepad1.left_bumper == true && leftBumper == false) {
             TgrabServoe = TransferGrabStates.TRANSFER_OPEN;
         }
 
@@ -683,7 +661,8 @@ public class LM3Teleop extends LinearOpMode {
             TgimbleServo.setPosition(0.5);
         }
     }
-    public void specimenPickup(){
+
+    public void specimenPickup() {
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
@@ -696,7 +675,8 @@ public class LM3Teleop extends LinearOpMode {
         TrotateServoe = TransferRotateStates.TRANSFER_UP;
         TgimbleServoe = TransferGimbleStates.TRANSFER_CENTER;
     }
-    public void hangSpecimen(){
+
+    public void hangSpecimen() {
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
         this.verticalLeft1.setTargetPosition(877);
@@ -709,25 +689,78 @@ public class LM3Teleop extends LinearOpMode {
         TgimbleServoe = TransferGimbleStates.GIMBLE_HANG;
         vertbaske = VertE.NULL_BASK;
     }
+
     public void finishHang() {
         verticalLeft1.setPower(1);
         verticalRight1.setPower(1);
         verticalLeft1.setTargetPosition(1900); ///move to 960 if vertical is slow or inconsistent
         verticalRight1.setTargetPosition(-1900); ///move to -960 if vertical is slow or inconsistent
-        while (verticalRight1.isBusy()||verticalLeft1.isBusy()){
+        while (verticalRight1.isBusy() || verticalLeft1.isBusy()) {
         }
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);
         verticalLeft1.setTargetPosition(975);
         verticalRight1.setTargetPosition(-975);
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);
         sleep(400);
-        do {verticalLeft1.setTargetPosition(0);
-            verticalRight1.setTargetPosition(0);}
+        do {
+            verticalLeft1.setTargetPosition(0);
+            verticalRight1.setTargetPosition(0);
+        }
         while (verticalLeft1.isBusy() || verticalRight1.isBusy());
         TgrabServoe = TransferGrabStates.TRANSFER_OPEN;
         TrotateServoe = TransferRotateStates.TRANSFER_UP;
         TgimbleServoe = TransferGimbleStates.TRANSFER_CENTER;
         verticalLeft1.setPower(0);
         verticalRight1.setPower(0);
+    }
+
+    private boolean horizontalReset = false;
+    private boolean verticalReset = false;
+
+    public void resetVerticalHorizontal() {
+        // Horizontal motor reset
+        if (digitalHori.getState() == PRESSED) {
+            if (!horizontalReset) {
+                // Reset encoder and set target position to 0
+                horizontalMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                horizontalMotor1.setTargetPosition(0);
+                horizontalMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                horizontalMotor1.setPower(0.5); // Set power to move the motor
+                horizontalReset = true; // Mark reset as complete
+            }
+            // Stop motor if it's already at the target position
+            if (horizontalMotor1.isBusy()) {
+                // Motor is still moving, no action needed
+            } else {
+                horizontalMotor1.setPower(0); // Stop motor once target is reached
+            }
+        } else {
+            horizontalReset = false; // Allow reset again if the switch is released
+        }
+
+        // Vertical motors reset
+        if (digitalVert.getState() == PRESSED) {
+            if (!verticalReset) {
+                // Reset encoders and set target position to 0
+                verticalLeft1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                verticalRight1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                verticalLeft1.setTargetPosition(0);
+                verticalRight1.setTargetPosition(0);
+                verticalLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                verticalRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                verticalLeft1.setPower(0.5); // Set power to move the motor
+                verticalRight1.setPower(0.5);
+                verticalReset = true; // Mark reset as complete
+            }
+            // Stop motors if they're already at the target position
+            if (verticalLeft1.isBusy() || verticalRight1.isBusy()) {
+                // Motors are still moving, no action needed
+            } else {
+                verticalLeft1.setPower(0); // Stop motors once target is reached
+                verticalRight1.setPower(0);
+            }
+        } else {
+            verticalReset = false; // Allow reset again if the switch is released
+        }
     }
 }

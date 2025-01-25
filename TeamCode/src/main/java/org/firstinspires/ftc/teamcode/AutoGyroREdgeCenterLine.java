@@ -191,7 +191,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
     public void runAutoWithSpecimen () {
         ///Hang First Specimen
         driveStraight(DRIVE_SPEED, 30.5, 0.0, false, true, false);  // Drive forward 31 inches
-        driveStraight(DRIVE_SPEED-0.2, 2.5, 0.0, false, false, false);  // Drive to get flush with submersible bar
+        driveStraight(DRIVE_SPEED-0.3, 2.25, 0.0, false, false, false);  // Drive to get flush with submersible bar
         tf.finishHang();
         ///Drive backward 20 inches
         driveStraight(DRIVE_SPEED, -20, 0.0, false, false, false);
@@ -199,23 +199,23 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         turnToHeading(TURN_SPEED, -50, HEADING_THRESHOLD);
         ///Drive forward 63 inches at a 20 degree angle to the right
         driveStraight(1, 30, -50, false, false, false);
-        driveStraight(1, 28, -20,false, false, false);
+        driveStraight(1, 30, -20,false, false, false);
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0, 5);
         ///Go backwards 61 inches
         driveStraight(DRIVE_SPEED , -51, 0,true, false, false); //-51.5 old distance
-        driveStraight(DRIVE_SPEED-0.2,  -5 , 0, true, false, false); //old speed: drive_speed-0.1
+        driveStraight(DRIVE_SPEED-0.2,  -5.5 , 0, true, false, false); //old speed: drive_speed-0.1
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();
         ///Orient Specimen #2
         tf.hangSpecimen();
         ///Hang second specimen
         dt.arcRobot(-55.0, 22.0, 1.0);
-        dt.arcRobot(55.0, 32.0, 1.0); //35 before
+        dt.arcRobot(55.0, 33.5, 0.9); //35 before
         tf.finishHang();
         ///Pickup third specimen from the wall
         dt.arcRobot(-55.0, -30.0, 1.0);
-        dt.arcRobot(55.0, -14, 1.0); //-17 before
+        dt.arcRobot(47.0, -15, 1.0); //-17 before
 //        tf.specimenPickup();
 //        ///Orient Specimen #3
 //        tf.hangSpecimen();

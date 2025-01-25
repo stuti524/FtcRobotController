@@ -228,13 +228,13 @@ public class SampleAuto extends LinearOpMode {
         tf.verticalRight.setPower(1);
         tf.horizontalMotor.setPower(1);
         arcWithBasket(-70, -38, 0.8, true);
-        driveStraight(0.4 , -15.3, getHeading(), false, true);
-        tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
+        driveStraight(0.4 , -15.5, getHeading(), false, true);
+        //tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_MIDDLE, TransferFinal.TransferStates.TRANSFER_CLOSE, TransferFinal.TransferStates.GIMBLE_BASKET);
         tf.dropSample();
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
         tf.verticalLeft.setTargetPosition(0);
         tf.verticalRight.setTargetPosition(0);
-        driveStraight(DRIVE_SPEED , 3.7, getHeading(), false, false);
+        driveStraight(DRIVE_SPEED , 3.2, getHeading(), false, false);//3.4
         turnToHeading(TURN_SPEED, 162.5, HEADING_THRESHOLD);
         pickUpPreset();
         tf.horizontalMotor.setTargetPosition(0);
@@ -246,12 +246,12 @@ public class SampleAuto extends LinearOpMode {
         tf.verticalRight.setTargetPosition(-4095);
         while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
         }
-        driveStraight(DRIVE_SPEED, -3.15, getHeading(), false, true);
+        driveStraight(DRIVE_SPEED, -3.4, getHeading(), false, true);
         tf.dropSample();
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
         tf.verticalLeft.setTargetPosition(0);
         tf.verticalRight.setTargetPosition(0);
-        driveStraight(DRIVE_SPEED , 3.65, getHeading(), false, false);
+        driveStraight(DRIVE_SPEED , 3.4, getHeading(), false, false);//3.55
         turnToHeading(TURN_SPEED, 184, HEADING_THRESHOLD);
         pickUpPreset();
         tf.horizontalMotor.setTargetPosition(0);
@@ -263,7 +263,7 @@ public class SampleAuto extends LinearOpMode {
         tf.verticalRight.setTargetPosition(-4095);
         while (tf.verticalLeft.isBusy() || tf.verticalRight.isBusy()) {
         }
-        driveStraight(DRIVE_SPEED, -3.65, getHeading(), false, false);
+        driveStraight(DRIVE_SPEED, -3.75, getHeading(), false, false);//-3.65
         tf.dropSample();
         tf.controlTransfer(TransferFinal.TransferStates.TRANSFER_HANG, TransferFinal.TransferStates.TRANSFER_OPEN, TransferFinal.TransferStates.TRANSFER_NINETY);
         tf.verticalLeft.setTargetPosition(0);

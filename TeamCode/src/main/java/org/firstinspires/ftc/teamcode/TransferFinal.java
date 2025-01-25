@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -20,6 +21,9 @@ public class TransferFinal {
     Servo TrotateServo;
     Servo TgrabServo;
     Servo TgimbleServo;
+
+    DigitalChannel digitalHori;
+    DigitalChannel digitalVert;
 
     //Vertical Slide Motors
     public DcMotor verticalLeft = null;
@@ -104,7 +108,7 @@ public class TransferFinal {
             this.TrotateServo.setPosition(0.68);
         }
         else {
-            this.TrotateServo.setPosition(0.5);
+            this.TrotateServo.setPosition(0.7);
         }
         this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
         this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
@@ -132,6 +136,33 @@ public class TransferFinal {
         this.verticalLeft.setPower(verticalPower);
         this.verticalRight.setPower(verticalPower);
         this.horizontalMotor.setPower(0.8);
+
+        digitalHori = hMap.get(DigitalChannel.class, "cd7");
+        digitalHori.setMode(DigitalChannel.Mode.INPUT);
+
+        digitalVert = hMap.get(DigitalChannel.class, "ed7");
+        digitalVert.setMode(DigitalChannel.Mode.INPUT);
+
+        if (digitalHori.getState() == false) {
+            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            horizontalMotor.setTargetPosition(0);
+            horizontalMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            horizontalMotor.setPower(-1);
+        }
+
+        if (digitalVert.getState() == false) {
+            verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            verticalLeft.setTargetPosition(0);
+            verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            verticalLeft.setPower(-1);
+            verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            verticalRight.setTargetPosition(0);
+            verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            verticalRight.setPower(1);
+        }
 
         ((DcMotorEx)verticalLeft).setTargetPositionTolerance(10);
         ((DcMotorEx)verticalRight).setTargetPositionTolerance(10);
