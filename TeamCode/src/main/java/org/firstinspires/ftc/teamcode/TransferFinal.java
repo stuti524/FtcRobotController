@@ -2,17 +2,16 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
-
 
 public class TransferFinal {
     //Defining Servos with Hardware Maps:
     //Ascent Servos
     Servo servostop2;
     Servo servostop1;
-    
+
     //Intake Servos
     Servo rotateServo;
     Servo grabServo;
@@ -23,6 +22,9 @@ public class TransferFinal {
     Servo TgrabServo;
     Servo TgimbleServo;
 
+    DigitalChannel digitalHori;
+    DigitalChannel digitalVert;
+
     //Vertical Slide Motors
     public DcMotor verticalLeft = null;
     public DcMotor verticalRight = null;
@@ -30,8 +32,8 @@ public class TransferFinal {
     public DcMotor horizontalMotor = null;
     //Enums:
     enum IntakeStates {
-        INTAKE_DOWN(0.12),
-        INTAKE_MIDDLE(0.35),
+        INTAKE_DOWN(0.1),
+        INTAKE_MIDDLE(0.25),
         INTAKE_UP(0.95),
         GRAB_CLOSE(0.56),
         GRAB_OPEN(0),
@@ -50,13 +52,13 @@ public class TransferFinal {
     }
 
     enum TransferStates {
-        TRANSFER_DOWN(0.7),   //1914
+        TRANSFER_DOWN(0.72),   //1914
         TRANSFER_MIDDLE(0.250), //1080
         TRANSFER_UP(0.1),
         TRANSFER_HANG(0.5),  //1455  0.468
         TRANSFER_CLOSE(0.32),
         TRANSFER_OPEN(0.52),
-        TRANSFER_ADJUST(0.35),
+        TRANSFER_ADJUST(0.40),
         TRANSFER_CENTER(0.30), //was 0.5, why?
         TRANSFER_NINETY(0.9),
         GIMBLE_HANG(0.5), // was 0.62, why?
@@ -106,7 +108,7 @@ public class TransferFinal {
             this.TrotateServo.setPosition(0.68);
         }
         else {
-            this.TrotateServo.setPosition(0.5);
+            this.TrotateServo.setPosition(0.7);
         }
         this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
         this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
@@ -135,6 +137,36 @@ public class TransferFinal {
         this.verticalRight.setPower(verticalPower);
         this.horizontalMotor.setPower(0.8);
 
+        digitalHori = hMap.get(DigitalChannel.class, "cd7");
+        digitalHori.setMode(DigitalChannel.Mode.INPUT);
+
+        digitalVert = hMap.get(DigitalChannel.class, "ed7");
+        digitalVert.setMode(DigitalChannel.Mode.INPUT);
+
+        if (digitalHori.getState() == false) {
+            horizontalMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            horizontalMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            horizontalMotor.setTargetPosition(0);
+            horizontalMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            horizontalMotor.setPower(-1);
+        }
+
+        if (digitalVert.getState() == false) {
+            verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            verticalLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            verticalLeft.setTargetPosition(0);
+            verticalLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            verticalLeft.setPower(-1);
+            verticalRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            verticalRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            verticalRight.setTargetPosition(0);
+            verticalRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            verticalRight.setPower(1);
+        }
+
+        ((DcMotorEx)verticalLeft).setTargetPositionTolerance(10);
+        ((DcMotorEx)verticalRight).setTargetPositionTolerance(10);
+        ((DcMotorEx)horizontalMotor).setTargetPositionTolerance(30);
     }
     public void servoInitializationTeleop(HardwareMap hMap, double verticalPower) {
         //Defining Servos with Hardware Maps:
@@ -237,8 +269,8 @@ public class TransferFinal {
     public void finishHang() {
         this.verticalLeft.setPower(1);
         this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(1900);
-        this.verticalRight.setTargetPosition(-1900);
+        this.verticalLeft.setTargetPosition(2200);
+        this.verticalRight.setTargetPosition(-2200);
         while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
         }
 //        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
@@ -382,6 +414,5 @@ public class TransferFinal {
         } catch (InterruptedException var4) {
             Thread.currentThread().interrupt();
         }
-
     }
 }
