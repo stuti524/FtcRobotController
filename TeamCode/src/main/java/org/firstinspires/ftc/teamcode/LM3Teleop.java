@@ -712,6 +712,7 @@ public class LM3Teleop extends LinearOpMode {
         TgimbleServoe = TransferGimbleStates.TRANSFER_CENTER;
         verticalLeft1.setPower(0);
         verticalRight1.setPower(0);
+
     }
 
     private boolean horizontalReset = false;
