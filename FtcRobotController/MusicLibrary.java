@@ -1,26 +1,25 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList; // import the ArrayList class
+import java.util.Arrays;
+import java.util.Random;
 
 public class MusicLibrary {
-    HashMap<String, String> Songs;
+    ArrayList<String> songs = new ArrayList<String>(Arrays.asList("Believer", "Die With a Smile", "Thunder"));
 
-    public MusicLibrary(){
-        Songs = new HashMap<String, String>();
-        Songs.put("Song 1", "London");
-        Songs.put("Song 2", "Berlin");
-        Songs.put("Song 3", "Oslo");
-        Songs.put("Song 4", "Washington DC");
-    }
+    Random random = new Random();
 
-    public static void main(String[] args) {
-        // Create a HashMap object called capitalCities
-        // Add keys and values (Country, City)
-
-
-
-    }
     public void addSong(String Song){
-
+        songs.add(Song);
+    }
+    public void randomSong(String Song){
+        int randomIndex = random.nextInt(songs.size());
+        String randomElement = songs.get(randomIndex);
+        System.out.println(randomElement);
+    }
+    public void removeSong(String Song){
+        songs.remove(Song);
+    }
+    public void printList(){
+        System.out.println(songs);
     }
 
 
