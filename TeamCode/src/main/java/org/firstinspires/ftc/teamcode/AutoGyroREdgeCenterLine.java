@@ -199,7 +199,7 @@ public class AutoGyroREdgeCenterLine extends LinearOpMode {
         ///Reorient the robot to 0 degrees
         turnToHeading(TURN_SPEED, 0, HEADING_THRESHOLD);
         ///Go backwards 61 inches
-        driveStraight(DRIVE_SPEED , -51.5, 0, false);
+        driveStraight(DRIVE_SPEED , -51.25, 0, false);
         driveStraight(DRIVE_SPEED-0.2, -7.25, 0, false);
         ///Pickup the preset specimen from the wall
         tf.specimenPickup();

@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 /*
@@ -229,18 +230,14 @@ public class ThreeSpec extends LinearOpMode {
 //        driveStraight(DRIVE_SPEED-0.2, 2, 0, false);
 //        tf.finishHang();
     }
-    public void arcWithSpec(double angle, double length, double speed, boolean readyToHang) {
+    public void arcWithAngleCheck(double angle, double length, double speed) {
         dt.arcStart(angle, length, speed);
         // do something else while arc is busy
-        if (readyToHang) {
-            tf.hangSpecimen();
+        while (getHeading() == 0 && (dt.leftFrontDrive.getVelocity() > 10 || dt.leftFrontDrive.getVelocity() < -10)){
         }
-        while (dt.rightFrontDrive.isBusy() || dt.leftFrontDrive.isBusy()) {
-        }
-        dt.leftFrontDrive.setPower(0);
-        dt.leftBackDrive.setPower(0);
-        dt.rightFrontDrive.setPower(0);
-        dt.rightBackDrive.setPower(0);
+//        while(dt.leftFrontDrive.getCurrent(CurrentUnit.AMPS)>3){
+//        }
+
     }
     public void runAutoWithBasket() {
         ///Go back 15 inches
