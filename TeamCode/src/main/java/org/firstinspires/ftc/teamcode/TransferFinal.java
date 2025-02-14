@@ -53,15 +53,15 @@ public class TransferFinal {
 
     enum TransferStates {
         TRANSFER_DOWN(0.72),   //1914
-        TRANSFER_MIDDLE(0.250), //1080
-        TRANSFER_UP(0.1),
-        TRANSFER_HANG(0.5),  //1455  0.468
-        TRANSFER_CLOSE(0.32),
-        TRANSFER_OPEN(0.52),
-        TRANSFER_ADJUST(0.40),
-        TRANSFER_CENTER(0.30), //was 0.5, why?
+        TRANSFER_MIDDLE(0.25), //1080
+        TRANSFER_UP(0.08),
+        TRANSFER_HANG(0.64),  //1455  0.468
+        TRANSFER_CLOSE(0.56),
+        TRANSFER_OPEN(0.82),
+        TRANSFER_ADJUST(0.62),
+        TRANSFER_CENTER(0.46), //was 0.5, why?
         TRANSFER_NINETY(0.9),
-        GIMBLE_HANG(0.5), // was 0.62, why?
+        GIMBLE_HANG(0.78), // was 0.62, why?
         GIMBLE_BASKET(0.54);
         private final double position;  // Field to store the position
 
@@ -105,16 +105,16 @@ public class TransferFinal {
         this.gimbleServo.setPosition(IntakeStates.GIMBLE_NINETY.value());
         this.grabServo.setPosition(IntakeStates.GRAB_OPEN.value());
         if (specimenAuto){
-            this.TrotateServo.setPosition(0.68);
+            this.TrotateServo.setPosition(0.6);
         }
         else {
             this.TrotateServo.setPosition(0.7);
         }
-        this.TgimbleServo.setPosition(TransferStates.GIMBLE_HANG.value());
+        this.TgimbleServo.setPosition(TransferStates.TRANSFER_NINETY.value());
         this.TgrabServo.setPosition(TransferStates.TRANSFER_CLOSE.value());
 
-        this.servostop2.setPosition(0.12);
-        this.servostop1.setPosition(1.0);
+        this.servostop2.setPosition(0.36);
+        this.servostop1.setPosition(0.32);
 
         //Initialize Vertical Motors
         this.verticalLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -254,39 +254,35 @@ public class TransferFinal {
     }
 
     public void hangSpecimen() {
-        this.verticalLeft.setPower(1);
-        this.verticalRight.setPower(1);
-        //1. Intialize transfer in the up position
-        //this.controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
-        //2. Raise vertical while transfer rotates into down position
-        //this.controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
-        this.verticalLeft.setTargetPosition(975);
-        this.verticalRight.setTargetPosition(-975);
-        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_ADJUST, TransferStates.GIMBLE_HANG);
+        verticalLeft.setPower(1);
+        verticalRight.setPower(1);
+        this.controlTransfer(TransferStates.TRANSFER_UP,TransferStates.TRANSFER_ADJUST, TransferStates.TRANSFER_CENTER);
+
+        this.verticalLeft.setTargetPosition(2600);
+        this.verticalRight.setTargetPosition(-2600);
+//        this.controlTransfer(TransferStates.TRANSFER_UP,TransferStates.TRANSFER_ADJUST, TransferStates.TRANSFER_CENTER);
+
         this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
+//        controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
+    }
+    public void primaryHangSpecimen() {
+        verticalLeft.setPower(1);
+        verticalRight.setPower(1);
+        this.verticalLeft.setTargetPosition(2600);
+        this.verticalRight.setTargetPosition(-2600);
+//        this.controlTransfer(TransferStates.TRANSFER_UP,TransferStates.TRANSFER_ADJUST, TransferStates.TRANSFER_CENTER);
+
+        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
+//        controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.GIMBLE_HANG);
     }
 
     public void finishHang() {
-        this.verticalLeft.setPower(1);
-        this.verticalRight.setPower(1);
-        this.verticalLeft.setTargetPosition(2200);
-        this.verticalRight.setTargetPosition(-2200);
-        while(this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
-        }
-//        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_CLOSE, TransferStates.GIMBLE_HANG);
-        // //3. Let go of specimen
-        this.controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_OPEN, TransferStates.GIMBLE_HANG);
-        // //4. Retract vertical while fliiping transfer to up position
-        this.verticalLeft.setTargetPosition(975);
-        this.verticalRight.setTargetPosition(-975);
-        this.controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
+        controlTransfer(TransferStates.TRANSFER_HANG, TransferStates.TRANSFER_OPEN, TransferStates.GIMBLE_HANG);
         this.verticalLeft.setTargetPosition(0);
         this.verticalRight.setTargetPosition(0);
-        while (this.verticalLeft.isBusy() || this.verticalRight.isBusy()) {
-        }
-        this.verticalLeft.setPower(0);
-        this.verticalRight.setPower(0);
-        showTelemetry();
+        controlTransfer(TransferStates.TRANSFER_UP, TransferStates.TRANSFER_OPEN, TransferStates.TRANSFER_CENTER);
+
+        while (this.verticalLeft.isBusy() || this.verticalRight.isBusy());
     }
     public void pickupSample() {
         //this.controlIntake(IntakeRotateStates.INTAKE_MIDDLE, IntakeGrabStates.GRAB_OPEN, IntakeGimbleStates.GIMBLE_NINETY);

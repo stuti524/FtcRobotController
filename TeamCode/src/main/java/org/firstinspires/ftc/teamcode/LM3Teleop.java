@@ -109,6 +109,7 @@ public class LM3Teleop extends LinearOpMode {
     Servo TrotateServo;
     Servo TgrabServo;
     Servo TgimbleServo;
+    Servo SpecCurtain;
     DigitalChannel digitalHori;
     DigitalChannel digitalVert;
 
@@ -161,6 +162,8 @@ public class LM3Teleop extends LinearOpMode {
         leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        SpecCurtain = hardwareMap.get(Servo.class, "es2");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -251,8 +254,8 @@ public class LM3Teleop extends LinearOpMode {
             }
 
             if (state != StateE.ASCENT_STATE) {
-                servostop1.setPosition(1.0);
-                servostop2.setPosition(0.09);
+                servostop1.setPosition(0.34);
+                servostop2.setPosition(0.34);
             }
 
             if (gamepad1.x == true) {
@@ -307,11 +310,11 @@ public class LM3Teleop extends LinearOpMode {
             verticalLeft1.setTargetPosition(2925);
             verticalRight1.setTargetPosition(-2925);
             TrotateServo.setPosition(0.55);
-            TgimbleServo.setPosition(1);
+
             sleep(200);
             //THESE SERVO POS WORK
-            servostop1.setPosition(0.10);
-            servostop2.setPosition(0.60);
+            servostop1.setPosition(0);
+            servostop2.setPosition(0.88);
         }
 
     }
@@ -387,10 +390,10 @@ public class LM3Teleop extends LinearOpMode {
             sleep(300);
             tf.sampleTransfer();
         }
-        if (TrotateServoe == TransferRotateStates.TRANSFER_UP) {
-            TgimbleServoe = TransferGimbleStates.TRANSFER_NINETY;
-            TgimbleServo.setPosition(0.9);
-        }
+//        if (TrotateServoe == TransferRotateStates.TRANSFER_UP) {
+//            TgimbleServoe = TransferGimbleStates.TRANSFER_NINETY;
+//            TgimbleServo.setPosition(0.9);
+//        }
 
         if (rightArrow == false && gamepad1.dpad_right == true && hortE == HortE.HORI_RETRACT) {
             hortE = HortE.HORI_EXTEND;
@@ -403,10 +406,13 @@ public class LM3Teleop extends LinearOpMode {
         if (hortE == HortE.HORI_EXTEND) {
             horizontalMotor1.setPower(1);
             horizontalMotor1.setTargetPosition(-2900);
+            controlTransfer(TransferRotateStates.TRANSFER_MIDDLE, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_NINETY);
         }
         if (hortE == HortE.HORI_RETRACT) {
             horizontalMotor1.setTargetPosition(0);
             horizontalMotor1.setPower(-0.7);
+            controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_CLOSE, TransferGimbleStates.TRANSFER_CENTER);
+
         }
 
         //CLAW INTAKE CODE
@@ -542,7 +548,7 @@ public class LM3Teleop extends LinearOpMode {
 
         //Transfer Grab Servo:
         if (grab == TransferGrabStates.TRANSFER_CLOSE) {
-            TgrabServo.setPosition(0.60); //Close Claw
+            TgrabServo.setPosition(0.56); //Close Claw
             sleep(100);
             grabServo.setPosition(0);
         }
@@ -550,7 +556,7 @@ public class LM3Teleop extends LinearOpMode {
             TgrabServo.setPosition(0.82);//Open Claw
         }
         if (grab == TransferGrabStates.TRANSFER_ADJUST) {
-            TgrabServo.setPosition(0.66);//Open Claw
+            TgrabServo.setPosition(0.60);//Open Claw
         }
         sleep(150);
 
@@ -606,7 +612,7 @@ public class LM3Teleop extends LinearOpMode {
         }
 
         if (gamepad1.dpad_left == true) {
-            specimenPickup();
+            //specimenPickup();
             hangSpecimen();
         }
         if (gamepad1.dpad_down == true) {
@@ -636,7 +642,7 @@ public class LM3Teleop extends LinearOpMode {
         leftBumper = gamepad1.left_bumper;
 
         if (TgrabServoe == TransferGrabStates.TRANSFER_CLOSE) {
-            TgrabServo.setPosition(0.60);//close claw fully
+            TgrabServo.setPosition(0.56);//close claw fully
         }
 
         if (TgrabServoe == TransferGrabStates.TRANSFER_OPEN) {
@@ -677,8 +683,8 @@ public class LM3Teleop extends LinearOpMode {
     }
 
     public void hangSpecimen() {
-        verticalLeft1.setPower(1);
-        verticalRight1.setPower(1);
+        verticalLeft1.setPower(0.7);
+        verticalRight1.setPower(0.7);
         this.verticalLeft1.setTargetPosition(2600);
         this.verticalRight1.setTargetPosition(-2600);
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_ADJUST, TransferGimbleStates.TRANSFER_CENTER);
@@ -702,6 +708,12 @@ public class LM3Teleop extends LinearOpMode {
 //        verticalLeft1.setTargetPosition(975);
 //        verticalRight1.setTargetPosition(-975);
         controlTransfer(TransferRotateStates.TRANSFER_HANG, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.GIMBLE_HANG);
+        SpecCurtain.setPosition(0);
+        sleep(2000);
+
+        SpecCurtain.setPosition(1);
+
+
         verticalLeft1.setTargetPosition(0);
         verticalRight1.setTargetPosition(0);
         controlTransfer(TransferRotateStates.TRANSFER_UP, TransferGrabStates.TRANSFER_OPEN, TransferGimbleStates.TRANSFER_CENTER);

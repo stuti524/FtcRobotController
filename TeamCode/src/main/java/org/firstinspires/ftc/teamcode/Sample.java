@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 //LEFT JOYSTICK - FORWARD and BACKWARD
 // RIGHT JOYSTICK - RIGHT and LEFT Turns
 @Disabled
-@TeleOp(name = "Sample")
+@TeleOp(name = "Sample")    
 public class Sample extends LinearOpMode {
     enum RotateServoE {
         //INTAKE_NO_DOWN_UP,
