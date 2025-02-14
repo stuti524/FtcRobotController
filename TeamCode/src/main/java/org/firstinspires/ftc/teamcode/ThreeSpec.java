@@ -211,11 +211,11 @@ public class ThreeSpec extends LinearOpMode {
 //        driveStraight(DRIVE_SPEED-0.2, 2, 0, false);
         tf.finishHang();
         ///Park before Auto period ends
-//        dt.arcRobot(-55.0, -35.0, 1.0);,
-//        dt.arcRobot(55.0, -18.0, 1.0); //-21.0
-        driveStraight(DRIVE_SPEED, -5, getHeading(), false);
-        dt.arcRobot(-45, -27, 10);
-        driveStraight(DRIVE_SPEED, -20, getHeading(), false);
+        dt.arcRobot(-55.0, -35.0, 1.0);
+        dt.arcRobot(55.0, -18.0, 1.0); //-21.0
+//        driveStraight(DRIVE_SPEED, -5, getHeading(), false);
+//        dt.arcRobot(-45, -27, 10);
+//        driveStraight(DRIVE_SPEED, -20, getHeading(), false);
 //        sleep(500);
 //        tf.hangSpecimen();
 //        driveStraight(DRIVE_SPEED, 34, getHeading(), false);
